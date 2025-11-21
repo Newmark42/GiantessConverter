@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTS Converter - Visual Edition</title>
+    <style>
+        :root {
+            --primary-color: #e91e63;
+            --secondary-color: #fce4ec;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row > div {
+            flex: 1;
+        }
+
+        .visual-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 500px;
+            background: #e0f7fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #81d4fa;
+        }
+
+        .visual-box {
+            text-align: center;
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .visual-label {
+            margin-top: 10px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* SVG Styles */
+        .silhouette {
+            fill: var(--primary-color);
+            transition: all 0.5s ease;
+        }
+        
+        .reference-obj {
+            fill: #555;
+            transition: all 0.5s ease;
+        }
+
+        .ruler-mark {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .result-item {
+            background: var(--secondary-color);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .result-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Range slider for height */
+        input[type=range] {
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>GTS Converter <span style="font-size: 0.6em; color: #666;">Visual Edition</span></h1>
+
+    <div class="container">
+        <!-- Left Column: Inputs -->
+        <div class="left-col">
+            <div class="card">
+                <h2>1. Before She Grows</h2>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Height (Feet)</label>
+                        <input type="number" id="wmnfeet" value="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Height (Inches)</label>
+                        <input type="number" id="wmninches" value="6">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Weight (lbs)</label>
+                    <input type="number" id="wmnweight" value="100">
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Cup Size</label>
+                        <select id="cup">
+                            <option value="0.8">A</option>
+                            <option value="1.6">B</option>
+                            <option value="2.35" selected>C</option>
+                            <option value="3.05">D</option>
+                            <option value="3.75">E</option>
+                            <option value="4.4">F</option>
+                            <option value="5.05">G</option>
+                            <option value="5.65">H</option>
+                            <option value="6.25">I</option>
+                            <option value="6.8">J</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Shoe Size (US)</label>
+                        <select id="shoe">
+                            <option value="8">3</option>
+                            <option value="8.69">5</option>
+                            <option value="9">6</option>
+                            <option value="9.31">7</option>
+                            <option value="9.69" selected>8</option>
+                            <option value="10">9</option>
+                            <option value="10.31">10</option>
+                            <option value="11">12</option>
+                            <option value="12">15</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Bust</label>
+                        <input type="number" id="key1" value="36">
+                    </div>
+                    <div class="input-group">
+                        <label>Waist</label>
+                        <input type="number" id="key2" value="24">
+                    </div>
+                    <div class="input-group">
+                        <label>Hips</label>
+                        <input type="number" id="key3" value="36">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Lift Capacity (lbs)</label>
+                    <input type="number" id="gtslift" value="50">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>2. Target Size</h2>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Miles</label>
+                        <input type="number" id="gtsmiles" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Feet</label>
+                        <input type="number" id="gtsfeet" value="50">
+                    </div>
+                    <div class="input-group">
+                        <label>Inches</label>
+                        <input type="number" id="gtsinches" value="0">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Quick Scale Slider (approx)</label>
+                    <input type="range" id="heightSlider" min="10" max="500" value="50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Visuals -->
+        <div class="right-col">
+            <div class="card">
+                <h2>Visual Comparison</h2>
+                <div class="visual-container">
+                    <!-- SVG for ruler only -->
+                    <svg id="rulerSvg" viewBox="0 0 400 500" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 500px; pointer-events: none;">
+                        <g id="rulerGroup">
+                            <!-- Main vertical line -->
+                            <line x1="50" y1="20" x2="50" y2="500" stroke="black" stroke-width="2" />
+                            <!-- Ticks and Text generated by JS -->
+                        </g>
+                    </svg>
+                    
+                    <!-- Images positioned with CSS -->
+                    <img id="startPerson" src="female-silouette-strong.png" style="position: absolute; bottom: 0;" />
+                    <img id="giantessWoman" src="female-silouette-strong.png" style="position: absolute; bottom: 0;" />
+                    <img id="buildingRef" src="200ft-tall-bldg.png" style="position: absolute; bottom: 0; left: 360px;" />
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-style: italic; color: #666;">
+                    Comparison: Starting Size vs Giantess Size
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Key Stats</h2>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Total Height</div>
+                        <div class="result-value" id="resHeight">50 ft</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Weight</div>
+                        <div class="result-value" id="resWeight">--</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Bust Size</div>
+                        <div class="result-value" id="resBust">--</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Foot Length</div>
+                        <div class="result-value" id="resFoot">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('standard')">Standard Measurements</div>
+            <div class="tab" onclick="switchTab('metric')">Metric Measurements</div>
+            <div class="tab" onclick="switchTab('fun')">Fun Stats</div>
+        </div>
+
+        <div id="standard" class="tab-content active">
+            <div class="results-grid" id="standardGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        <div id="metric" class="tab-content">
+            <div class="results-grid" id="metricGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+        <div id="fun" class="tab-content">
+            <div class="results-grid" id="funGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- SVG PATHS ---
+    // Simple paths for visualization
+    // Defined in a 0-400 coordinate system (width) and 0-500 (height)
+    // But we will transform them.
+    // Base Woman Path: Normalized to be approx 460px tall (filling the view from y=480 to y=20)
+    // Center X is 0 for the path definition, so we can translate it easily.
+    // Image constants
+    const WOMAN_IMAGE_WIDTH = 100;
+    const WOMAN_IMAGE_HEIGHT = 240;
+    const BUILDING_REAL_HEIGHT_FEET = 200;
+    const BUILDING_REAL_HEIGHT_INCHES = BUILDING_REAL_HEIGHT_FEET * 12; // 2400 inches
+
+    // --- HELPER FUNCTIONS ---
+    function addCommas(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+    // Pre-load images
+    const femaleImg = new Image();
+    femaleImg.src = 'female-silouette-strong.png';
+    const buildingImg = new Image();
+    buildingImg.src = '200ft-tall-bldg.png';
+
+    // --- LOGIC ---
+
+    function update() {
+        // 1. Get Inputs
+        const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
+        const wmninches = parseFloat(document.getElementById('wmninches').value) || 0;
+        const wmnweight = parseFloat(document.getElementById('wmnweight').value) || 0;
+        const cup = parseFloat(document.getElementById('cup').value) || 2.35;
+        const shoe = parseFloat(document.getElementById('shoe').value) || 9.69;
+        const key1 = parseFloat(document.getElementById('key1').value) || 36;
+        const key2 = parseFloat(document.getElementById('key2').value) || 24;
+        const key3 = parseFloat(document.getElementById('key3').value) || 36;
+        const gtslift = parseFloat(document.getElementById('gtslift').value) || 50;
+
+        const gtsmiles = parseFloat(document.getElementById('gtsmiles').value) || 0;
+        const gtsfeet = parseFloat(document.getElementById('gtsfeet').value) || 0;
+        const gtsinches = parseFloat(document.getElementById('gtsinches').value) || 0;
+
+        // 2. Calculate Factors
+        const startHeightInches = (wmnfeet * 12) + wmninches;
+        const targetHeightInches = (gtsmiles * 63360) + (gtsfeet * 12) + gtsinches;
+        
+        if (startHeightInches <= 0 || targetHeightInches <= 0) return;
+
+        const factor = targetHeightInches / startHeightInches;
+        const factor68 = startHeightInches / 68; // Normalized to 5'8"
+        const factor120 = wmnweight / 120; // Normalized to 120lbs
+
+        // Helper Functions
+        const findmi = (inches) => Math.floor(inches / 63360);
+        const findft = (inches) => Math.floor((inches / 12) % 5280);
+        const findin = (inches) => Math.floor(inches % 12);
+        const find1din = (inches) => Math.floor((inches % 12) * 10) / 10;
+        const findtons = (lbs) => Math.floor(lbs / 2000);
+        const findpounds = (lbs) => Math.floor(lbs % 2000);
+
+        try {
+            // 3. Update Visuals
+            updateVisuals(startHeightInches, targetHeightInches);
+            console.log('Visuals updated successfully');
+
+            // 4. Update Key Stats
+            document.getElementById('resHeight').innerText = formatHeight(targetHeightInches);
+            console.log('Height updated:', formatHeight(targetHeightInches));
+            
+            const totalWeight = factor120 * 120 * Math.pow(factor, 3);
+            console.log('Total weight calculated:', totalWeight);
+            document.getElementById('resWeight').innerText = formatWeight(totalWeight);
+            console.log('Weight formatted and set:', formatWeight(totalWeight));
+
+            const bustSize = key1 * factor;
+            console.log('Bust size calculated:', bustSize);
+            document.getElementById('resBust').innerText = formatHeight(bustSize);
+            console.log('Bust formatted and set:', formatHeight(bustSize));
+
+            const footLen = shoe * factor;
+            console.log('Foot length calculated:', footLen);
+            document.getElementById('resFoot').innerText = formatHeight(footLen);
+            console.log('Foot formatted and set:', formatHeight(footLen));
+
+            // 5. Populate Grids
+            console.log('About to populate grids...');
+            populateStandardGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift);
+            console.log('Standard grid populated');
+            populateMetricGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift);
+            console.log('Metric grid populated');
+            populateFunGrid(factor, factor68, factor120);
+            console.log('Fun grid populated');
+        } catch (error) {
+            console.error('Error in update function:', error);
+        }
+    }
+
+    function formatHeight(inches) {
+        if (inches >= 63360) {
+            const mi = Math.floor(inches / 63360);
+            const ft = Math.floor((inches / 12) % 5280);
+            return `${mi} mi, ${ft} ft`;
+        } else if (inches >= 12) {
+            const ft = Math.floor(inches / 12);
+            const inc = Math.floor(inches % 12);
+            return `${ft} ft, ${inc} in`;
+        } else {
+            return `${inches.toFixed(1)} in`;
+        }
+    }
+
+    function formatWeight(lbs) {
+        if (lbs >= 2000) {
+            const tons = Math.floor(lbs / 2000);
+            const remLbs = Math.floor(lbs % 2000);
+            return `${addCommas(tons)} tons, ${remLbs} lbs`;
+        }
+        return `${addCommas(Math.floor(lbs))} lbs`;
+    }
+
+    function updateVisuals(startInches, targetInches) {
+        // Visual Constants
+        const containerHeight = 500; // px
+        const topY = 20;
+        const groundY = 500; // Bottom of SVG viewBox
+        const maxVisualHeight = groundY - topY; // 480px
+
+        // 1. Giantess (Fixed visual height)
+        const giantessWoman = document.getElementById('giantessWoman');
+        const giantessHeight = maxVisualHeight;
+        giantessWoman.style.height = giantessHeight + 'px';
+        giantessWoman.style.left = '50%';
+        giantessWoman.style.transform = 'translateX(-50%)';
+
+        // 2. Starting Person (Proportional)
+        const startPerson = document.getElementById('startPerson');
+        const scaleRatio = startInches / targetInches;
+        const startHeight = maxVisualHeight * scaleRatio;
+        startPerson.style.height = startHeight + 'px';
+        startPerson.style.left = '100px';
+
+        // 3. Building (200ft = 2400 inches, proportional scale)
+        const buildingRef = document.getElementById('buildingRef');
+        const buildingScaleRatio = BUILDING_REAL_HEIGHT_INCHES / targetInches;
+        const buildingHeight = maxVisualHeight * buildingScaleRatio;
+        buildingRef.style.height = buildingHeight + 'px';
+        // Left edge stays fixed at 360px - positioned to the right of giantess
+        buildingRef.style.left = '360px';
+        
+        // 3. Ruler (Dynamic Values)
+        const rulerGroup = document.getElementById('rulerGroup');
+        // Clear old ticks (except the main line)
+        // Actually, let's just rebuild the inner HTML of the group
+        rulerGroup.innerHTML = `<line x1="50" y1="${topY}" x2="50" y2="${groundY}" stroke="black" stroke-width="2" />`;
+        
+        // We want ticks at regular intervals.
+        // Total height = targetInches.
+        // Visual height = maxVisualHeight.
+        // Let's aim for ~10 ticks.
+        const numTicks = 10;
+        const intervalInches = targetInches / numTicks;
+        
+        for (let i = 0; i <= numTicks; i++) {
+            const currentInches = i * intervalInches;
+            const visualY = groundY - ( (currentInches / targetInches) * maxVisualHeight );
+            
+            // Tick Line
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", "45");
+            line.setAttribute("y1", visualY);
+            line.setAttribute("x2", "55");
+            line.setAttribute("y2", visualY);
+            line.setAttribute("stroke", "black");
+            rulerGroup.appendChild(line);
+            
+            // Text Label
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", "40");
+            text.setAttribute("y", visualY + 4); // Center vertically
+            text.setAttribute("text-anchor", "end");
+            text.setAttribute("font-size", "12");
+            text.textContent = formatHeightShort(currentInches);
+            rulerGroup.appendChild(text);
+        }
+    }
+
+    function formatHeightShort(inches) {
+        if (inches === 0) return "0";
+        if (inches >= 63360) { // Miles
+            return (inches / 63360).toFixed(2) + "mi";
+        } else if (inches >= 12) { // Feet
+            return Math.round(inches / 12) + "ft";
+        } else {
+            return Math.round(inches) + "in";
+        }
+    }
+
+    function populateStandardGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift) {
+        const grid = document.getElementById('standardGrid');
+        grid.innerHTML = '';
+
+        const add = (label, value) => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
+            grid.appendChild(div);
+        };
+
+        // Shoulders
+        const headw = (startInches / 7) * (2/3);
+        const shoulderW = headw * 2.9 * factor;
+        add("Shoulder Width", formatHeight(shoulderW));
+
+        // Hips
+        const hipW = headw * (2 + (key3/32 - 1) * 1.5) * factor;
+        add("Hip Width", formatHeight(hipW));
+
+        // Measurements
+        add("Bust", formatHeight(key1 * factor));
+        add("Waist", formatHeight(key2 * factor));
+        add("Hips", formatHeight(key3 * factor));
+
+        // Key Points
+        const headh = startInches / 7;
+        add("Ankle Height", formatHeight(headh/3 * factor));
+        add("Knee Height", formatHeight(headh*1.875 * factor));
+        add("Crotch Height", formatHeight(headh*3.5 * factor));
+        add("Breast Height", formatHeight(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
+        
+        // Movement
+        add("Walk Speed", (Math.floor((factor68*26.5*factor*7200/63360)*10)/10) + " mph");
+        add("Run Speed", (Math.floor((factor68*66*factor*9600/63360)*10)/10) + " mph");
+    }
+
+    function populateMetricGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift) {
+        const grid = document.getElementById('metricGrid');
+        grid.innerHTML = '';
+
+        const add = (label, value) => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
+            grid.appendChild(div);
+        };
+
+        // Helper for metric formatting
+        const formatMetric = (inches) => {
+            const cm = inches * 2.54;
+            if (cm >= 100000) { // 1km
+                return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            } else if (cm >= 100) { // 1m
+                return (Math.floor(cm / 100 * 100) / 100) + " m";
+            } else {
+                return (Math.floor(cm * 10) / 10) + " cm";
+            }
+        };
+
+        // Shoulders
+        const headw = (startInches / 7) * (2/3);
+        const shoulderW = headw * 2.9 * factor;
+        add("Shoulder Width", formatMetric(shoulderW));
+
+        // Hips
+        const hipW = headw * (2 + (key3/32 - 1) * 1.5) * factor;
+        add("Hip Width", formatMetric(hipW));
+
+        // Measurements
+        add("Bust", formatMetric(key1 * factor));
+        add("Waist", formatMetric(key2 * factor));
+        add("Hips", formatMetric(key3 * factor));
+
+        // Key Points
+        const headh = startInches / 7;
+        add("Ankle Height", formatMetric(headh/3 * factor));
+        add("Knee Height", formatMetric(headh*1.875 * factor));
+        add("Crotch Height", formatMetric(headh*3.5 * factor));
+        add("Breast Height", formatMetric(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
+        
+        // Movement
+        add("Walk Speed", (Math.floor((factor68*61.31*factor*7200/100000)*10)/10) + " kph");
+        add("Run Speed", (Math.floor((factor68*167.64*factor*9600/100000)*10)/10) + " kph");
+    }
+
+    function populateFunGrid(factor, factor68, factor120) {
+        const grid = document.getElementById('funGrid');
+        grid.innerHTML = '';
+
+        const add = (label, value) => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
+            grid.appendChild(div);
+        };
+
+        const addCommas = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        // Energy
+        const stepJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(9.81)*(0.07*factor);
+        const stompJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(11.5)*(0.5*factor);
+        const jumpJoules = (factor120*120*Math.pow(factor,3)*0.4536)*(9.81)*(0.43*factor);
+
+        add("Step Energy", addCommas(Math.floor(stepJoules)) + " Joules");
+        add("Stomp Energy", addCommas(Math.floor(stompJoules)) + " Joules");
+        add("Jump Energy", addCommas(Math.floor(jumpJoules)) + " Joules");
+
+        // Earthquake Comparison
+        const getQuakeMag = (joules) => {
+            if (joules > 7.1e17) return "Magnitude 9+";
+            if (joules > 2.2e16) return "Magnitude 8+";
+            if (joules > 7.1e14) return "Magnitude 7+";
+            if (joules > 2.2e13) return "Magnitude 6+";
+            if (joules > 7.1e11) return "Magnitude 5+";
+            if (joules > 2.2e10) return "Magnitude 4+";
+            return "Minor Tremor";
+        };
+
+        add("Stomp Equivalent", getQuakeMag(stompJoules));
+        add("Jump Equivalent", getQuakeMag(jumpJoules));
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Find the tab element that was clicked (this is a bit hacky without event target, but works if we pass 'this' or just select by text)
+        // Actually, let's just select by index or text.
+        const tabs = document.querySelectorAll('.tab');
+        if(tabId === 'standard') tabs[0].classList.add('active');
+        if(tabId === 'metric') tabs[1].classList.add('active');
+        if(tabId === 'fun') tabs[2].classList.add('active');
+
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Event Listeners
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', update);
+    });
+
+    // Slider Logic
+    const slider = document.getElementById('heightSlider');
+    slider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        // Logarithmic-ish scale for better control? Or just linear for now.
+        // Let's map 0-500 to Feet.
+        document.getElementById('gtsfeet').value = val;
+        document.getElementById('gtsmiles').value = 0;
+        update();
+    });
+
+    // Initial Call
+    update();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,975 @@
+
+<html><head><title>GTS Converter 3.05</title>
+</head><body bgcolor="#dbdbdb">
+<br>
+<script language="javascript">
+
+function convert(form, wmnfeet, wmninches, cup, shoe, key1, key2, key3, wmnweight, gtsmiles, gtsfeet, gtsinches, gtslift)
+{
+
+<!-- BASIC AND RAW FACTORS -->
+
+	factor		=((gtsmiles*63360)+(gtsfeet*12)+(gtsinches*1))/((wmnfeet*12)+(wmninches*1))
+	factor68		=(wmnfeet*12+wmninches*1)/(68)
+	factor120	=wmnweight/120
+	wmnheightinch	=(wmninches*1+wmnfeet*12)
+	heightinch	=(gtsmiles*63360+gtsfeet*12+gtsinches*1)
+	cupcomp		=(((cup*1+1)/cup)-0.1)
+	shoecomp	=(((shoe*shoe/8)-8)/250)
+	breast		=(cup*1)
+	headh		=((wmnfeet*12+wmninches*1)/7)
+	headw		=((wmnfeet*12+wmninches*1)/7*(2/3))
+
+<!-- STANDARD MEASUREMENTS -->
+
+	form.gtsmi.value			=findmi(heightinch)
+	form.gtsft.value			=findft(heightinch)
+	form.gtsin.value			=findin(heightinch)
+
+	form.gtstons.value			=addCommas(findtons(factor120*120*Math.pow(factor,3)))
+	form.gtspounds.value		=findpounds(factor120*120*Math.pow(factor,3))
+	form.gtslifttons.value		=addCommas(findtons(gtslift*Math.pow(factor,3)))
+	form.gtsliftpounds.value		=findpounds(gtslift*Math.pow(factor,3))
+
+	form.shoulderwmi.value		=findmi(headw*2.9*factor)
+	form.shoulderwft.value		=findft(headw*2.9*factor)
+	form.shoulderwin.value		=findin(headw*2.9*factor)
+	form.hipwmi.value			=findmi(headw*(2+(key3/32-1)*1.5)*factor)
+	form.hipwft.value			=findft(headw*(2+(key3/32-1)*1.5)*factor)
+	form.hipwin.value			=findin(headw*(2+(key3/32-1)*1.5)*factor)
+
+	form.manfeet.value		=findft(72/factor)
+	form.maninches.value		=find2din(72/factor)
+	form.manpounds.value		=Math.floor(180/Math.pow(factor,3))
+	form.manounces.value		=Math.floor((16*180/Math.pow(factor,3)%16)*100.0)/100.0
+
+	form.bustmi.value			=findmi(key1*Math.pow(factor,1))
+	form.bustft.value			=findft(key1*Math.pow(factor,1))
+	form.bustin.value			=findin(key1*Math.pow(factor,1))
+	form.waistmi.value			=findmi(key2*Math.pow(factor,1))
+	form.waistft.value			=findft(key2*Math.pow(factor,1))
+	form.waistin.value			=findin(key2*Math.pow(factor,1))
+	form.hipsmi.value			=findmi(key3*Math.pow(factor,1))
+	form.hipsft.value			=findft(key3*Math.pow(factor,1))
+	form.hipsin.value			=findin(key3*Math.pow(factor,1))
+
+	form.anklemi.value			=findmi(headh/3*factor)
+	form.ankleft.value			=findft(headh/3*factor)
+	form.anklein.value			=find1din(headh/3*factor)
+	form.kneemi.value			=findmi(headh*1.875*factor)
+	form.kneeft.value			=findft(headh*1.875*factor)
+	form.kneein.value			=find1din(headh*1.875*factor)
+	form.crotchmi.value		=findmi(headh*3.5*factor)
+	form.crotchft.value		=findft(headh*3.5*factor)
+	form.crotchin.value		=find1din(headh*3.5*factor)
+	form.hipmi.value			=findmi(headh*4*factor)
+	form.hipft.value			=findft(headh*4*factor)
+	form.hipin.value			=find1din(headh*4*factor)
+	form.breastmi.value		=findmi(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.breastft.value			=findft(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.breastin.value			=find1din(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.neckmi.value			=findmi(headh*5.75*factor)
+	form.neckft.value			=findft(headh*5.75*factor)
+	form.neckin.value			=find1din(headh*5.75*factor)
+	form.chinmi.value			=findmi(headh*6*factor)
+	form.chinft.value			=findft(headh*6*factor)
+	form.chinin.value			=find1din(headh*6*factor)
+
+	form.walkspeedmph.value		=Math.floor((factor68*26.5*factor*7200/63360)*10.0)/10.0
+	form.runspeedmph.value		=Math.floor((factor68*66*factor*9600/63360)*10.0)/10.0
+	form.walkstridemi.value		=findmi(factor68*26.5*factor)
+	form.walkstrideft.value		=findft(factor68*26.5*factor)
+	form.walkstridein.value		=findin(factor68*26.5*factor)
+	form.runstridemi.value		=findmi(factor68*66*factor)
+	form.runstrideft.value		=findft(factor68*66*factor)
+	form.runstridein.value		=findin(factor68*66*factor)
+
+	form.hairmi.value			=findmi(0.002*factor)
+	form.hairft.value			=findft(0.002*factor)
+	form.hairin.value			=find2din(0.002*factor)
+	form.mouthopenmi.value		=findmi(factor68*2.2*factor)
+	form.mouthopenft.value		=findft(factor68*2.2*factor)
+	form.mouthopenin.value		=find1din(factor68*2.2*factor)
+	form.lipsmi.value			=findmi(factor68*2.6*factor)
+	form.lipsft.value			=findft(factor68*2.6*factor)
+	form.lipsin.value			=find1din(factor68*2.6*factor)
+	form.tonguemi.value		=findmi(factor68*3.9*factor)
+	form.tongueft.value		=findft(factor68*3.9*factor)
+	form.tonguein.value		=find1din(factor68*3.9*factor)
+	form.tonguestickmi.value		=findmi(factor68*1.5*factor)
+	form.tonguestickft.value		=findft(factor68*1.5*factor)
+	form.tonguestickin.value		=find1din(factor68*1.5*factor)
+
+	form.breastheightmi.value		=findmi((breast+cupcomp)*1.35*factor)
+	form.breastheightft.value		=findft((breast+cupcomp)*1.35*factor)
+	form.breastheightin.value		=find1din((breast+cupcomp)*1.35*factor)
+	form.breastwidthmi.value		=findmi((breast+cupcomp)*1.15*factor)
+	form.breastwidthft.value		=findft((breast+cupcomp)*1.15*factor)
+	form.breastwidthin.value		=find1din((breast+cupcomp)*1.15*factor)
+	form.breastdepthmi.value		=findmi(breast*factor)
+	form.breastdepthft.value		=findft(breast*factor)
+	form.breastdepthin.value		=find1din(breast*factor)
+
+	form.breasttons.value		=addCommas(findtons(cup*Math.pow(factor,3)))
+	form.breastpounds.value		=find2dlbs(cup*Math.pow(factor,3))
+
+	form.areoladiametermi.value		=findmi(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.areoladiameterft.value		=findft(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.areoladiameterin.value		=find2din(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.nipplediametermi.value		=findmi(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nipplediameterft.value		=findft(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nipplediameterin.value		=find2din(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nippleerrectmi.value		=findmi(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.nippleerrectft.value		=findft(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.nippleerrectin.value		=find2din(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.milkductmi.value		=findmi(factor*(0.019+breast/2000))
+	form.milkductft.value		=findft(factor*(0.019+breast/2000))
+	form.milkductin.value		=find2din(factor*(0.019+breast/2000))
+	form.milkdropga.value		=addCommas(Math.floor((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3))*100.0)/100.0)
+	form.milkdroptons.value		=addCommas(Math.floor((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3))/250))
+	form.milkdroppounds.value		=Math.floor(((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3))*8.32%2000)*100.0)/100.0
+
+	form.vaginami.value		=findmi(factor68*6*factor)
+	form.vaginaft.value		=findft(factor68*6*factor)
+	form.vaginain.value		=findin(factor68*6*factor)
+	form.labiami.value			=findmi(factor68*1.75*factor)
+	form.labiaft.value			=findft(factor68*1.75*factor)
+	form.labiain.value			=findin(factor68*1.75*factor)
+
+	form.palmmi.value			=findmi(wmnheightinch/9.2*0.525*factor)
+	form.palmft.value			=findft(wmnheightinch/9.2*0.525*factor)
+	form.palmin.value			=findin(wmnheightinch/9.2*0.525*factor)
+	form.fingermi.value			=findmi(wmnheightinch/9.2*0.475*factor)
+	form.fingerft.value			=findft(wmnheightinch/9.2*0.475*factor)
+	form.fingerin.value			=findin(wmnheightinch/9.2*0.475*factor)
+	form.ringmi.value			=findmi(factor68*0.68*factor)
+	form.ringft.value			=findft(factor68*0.68*factor)
+	form.ringin.value			=findin(factor68*0.68*factor)
+	form.armlmi.value			=findmi(factor68*22*factor)
+	form.armlft.value			=findft(factor68*22*factor)
+	form.armlin.value			=findin(factor68*22*factor)
+
+	form.crotchmi2.value		=findmi(headh*3.5*factor)
+	form.crotchft2.value		=findft(headh*3.5*factor)
+	form.crotchin2.value		=findin(headh*3.5*factor)
+	form.footwmi.value			=findmi(shoe*(0.334+shoecomp)*factor)
+	form.footwft.value			=findft(shoe*(0.334+shoecomp)*factor)
+	form.footwin.value			=find2din(shoe*(0.334+shoecomp)*factor)
+	form.footlmi.value			=findmi(shoe*factor)
+	form.footlft.value			=findft(shoe*factor)
+	form.footlin.value			=find2din(shoe*factor)
+
+<!-- FORCE MEASUREMENTS -->
+
+	form.gtsstep.value			=addCommas(Math.floor((factor120*120*Math.pow(factor,3)*0.4536)/2*(9.81)*(0.07*factor)))
+	form.gtsstomp.value		=addCommas(Math.floor((factor120*120*Math.pow(factor,3)*0.4536)/2*(11.5)*(0.5*factor)))
+	form.gtsjump.value			=addCommas(Math.floor((factor120*120*Math.pow(factor,3)*0.4536)*(9.81)*(0.43*factor)))
+
+<!-- METRIC MEASUREMENTS -->
+
+	form.gtskm.value			=findkm(heightinch)
+	form.gtsm.value			=findm(heightinch)
+	form.gtscm.value			=findcm(heightinch)
+
+	form.shoulderwkm.value		=findkm(headw*2.9*factor)
+	form.shoulderwm.value		=findm(headw*2.9*factor)
+	form.shoulderwcm.value		=findcm(headw*2.9*factor)
+	form.hipwkm.value			=findkm(headw*(2+(key3/32-1)*1.5)*factor)
+	form.hipwm.value			=findm(headw*(2+(key3/32-1)*1.5)*factor)
+	form.hipwcm.value			=findcm(headw*(2+(key3/32-1)*1.5)*factor)
+
+	form.manm.value			=findm(72/factor)
+	form.mancm.value			=find2dcm(72/factor)
+	form.mankg.value			=Math.floor(81.65/Math.pow(factor,3))
+	form.mang.value			=Math.floor((8165/Math.pow(factor,3)%1000)*100.0)/100.0
+
+	form.gtsmtons.value		=addCommas(findmtons(factor120*120*Math.pow(factor,3)))
+	form.gtskgs.value			=findkgs(factor120*120*Math.pow(factor,3))
+	form.gtsliftmtons.value		=addCommas(findmtons(gtslift*Math.pow(factor,3)))
+	form.gtsliftkgs.value		=findkgs(gtslift*Math.pow(factor,3))
+
+	form.bustkm.value			=findkm(key1*Math.pow(factor,1))
+	form.bustm.value			=findm(key1*Math.pow(factor,1))
+	form.bustcm.value			=findcm(key1*Math.pow(factor,1))
+	form.waistkm.value			=findkm(key2*Math.pow(factor,1))
+	form.waistm.value			=findm(key2*Math.pow(factor,1))
+	form.waistcm.value		=findcm(key2*Math.pow(factor,1))
+	form.hipskm.value			=findkm(key3*Math.pow(factor,1))
+	form.hipsm.value			=findm(key3*Math.pow(factor,1))
+	form.hipscm.value			=findcm(key3*Math.pow(factor,1))
+
+	form.anklekm.value			=findkm(headh/3*factor)
+	form.anklem.value			=findm(headh/3*factor)
+	form.anklecm.value			=find1dcm(headh/3*factor)
+	form.kneekm.value			=findkm(headh*1.875*factor)
+	form.kneem.value 			=findm(headh*1.875*factor)
+	form.kneecm.value			=find1dcm(headh*1.875*factor)
+	form.crotchkm.value		=findkm(headh*3.5*factor)
+	form.crotchm.value		=findm(headh*3.5*factor)
+	form.crotchcm.value		=find1dcm(headh*3.5*factor)
+	form.hipkm.value			=findkm(headh*4*factor)
+	form.hipm.value			=findm(headh*4*factor)
+	form.hipcm.value			=find1dcm(headh*4*factor)
+	form.breastkm.value		=findkm(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.breastm.value			=findm(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.breastcm.value		=find1dcm(((headh*5)-(((breast+cupcomp*1.5)-3.65))*0.8)*factor)
+	form.neckkm.value			=findkm(headh*5.75*factor)
+	form.neckm.value			=findm(headh*5.75*factor)
+	form.neckcm.value			=find1dcm(headh*5.75*factor)
+	form.chinkm.value			=findkm(headh*6*factor)
+	form.chinm.value			=findm(headh*6*factor)
+	form.chincm.value			=find1dcm(headh*6*factor)
+
+	form.walkspeedkph.value		=Math.floor((factor68*61.31*factor*7200/100000)*10.0)/10.0
+	form.runspeedkph.value		=Math.floor((factor68*167.64*factor*9600/100000)*10.0)/10.0
+	form.walkstridekm.value		=findkm(factor68*26.5*factor)
+	form.walkstridem.value		=findm(factor68*26.5*factor)
+	form.walkstridecm.value		=findcm(factor68*26.5*factor)
+	form.runstridekm.value		=findkm(factor68*66*factor)
+	form.runstridem.value		=findm(factor68*66*factor)
+	form.runstridecm.value		=findcm(factor68*66*factor)
+
+	form.hairkm.value			=findkm(0.002*factor)
+	form.hairm.value			=findm(0.002*factor)
+	form.haircm.value			=find2dcm(0.002*factor)
+	form.mouthopenkm.value		=findkm(factor68*2.2*factor)
+	form.mouthopenm.value		=findm(factor68*2.2*factor)
+	form.mouthopencm.value		=find1dcm(factor68*2.2*factor)
+	form.lipskm.value			=findkm(factor68*2.6*factor)
+	form.lipsm.value			=findm(factor68*2.6*factor)
+	form.lipscm.value			=find1dcm(factor68*2.6*factor)
+	form.tonguekm.value		=findkm(factor68*3.9*factor)
+	form.tonguem.value		=findm(factor68*3.9*factor)
+	form.tonguecm.value		=find1dcm(factor68*3.9*factor)
+	form.tongueoutkm.value		=findkm(factor68*1.5*factor)
+	form.tongueoutm.value		=findm(factor68*1.5*factor)
+	form.tongueoutcm.value		=find1dcm(factor68*1.5*factor)
+
+	form.breastheightkm.value		=findkm((breast+cupcomp)*1.5*factor)
+	form.breastheightm.value		=findm((breast+cupcomp)*1.5*factor)
+	form.breastheightcm.value		=find1dcm((breast+cupcomp)*1.5*factor)
+	form.breastwidthkm.value		=findkm((breast+cupcomp)*1.337*factor)
+	form.breastwidthm.value		=findm((breast+cupcomp)*1.337*factor)
+	form.breastwidthcm.value		=find1dcm((breast+cupcomp)*1.337*factor)
+	form.breastdepthkm.value		=findkm(cup*factor)
+	form.breastdepthm.value		=findm(cup*factor)
+	form.breastdepthcm.value		=find1dcm(cup*factor)
+
+	form.breastmtons.value		=addCommas(findmtons(cup*Math.pow(factor,3)))
+	form.breastkgs.value		=find2dkgs(cup*Math.pow(factor,3))
+
+	form.areoladiameterkm.value		=findkm(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.areoladiameterm.value		=findm(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.areoladiametercm.value		=find2dcm(((breast+cupcomp*1.337)*factor)*cupcomp/4.1)
+	form.nipplediameterkm.value		=findkm(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nipplediameterm.value		=findm(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nipplediametercm.value		=find2dcm(((breast+cupcomp*1.337)*factor)*cupcomp/14.8)
+	form.nippleerrectkm.value		=findkm(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.nippleerrectm.value		=findm(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.nippleerrectcm.value		=find2dcm(((breast+cupcomp*1.337)*factor)*cupcomp/8.2)
+	form.milkductkm.value		=findkm(factor*(0.019+breast/2000))
+	form.milkductm.value		=findm(factor*(0.019+breast/2000))
+	form.milkductcm.value		=find2dcm(factor*(0.019+breast/2000))
+	form.milkdropli.value		=addCommas(Math.floor((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3*3.785))*100.0)/100.0)
+	form.milkdropmtons.value		=addCommas(Math.floor((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3))/250*0.907))
+	form.milkdropkgs.value		=Math.floor(((((4/3*3.14*Math.pow((((breast+cupcomp*1.337)*factor)*cupcomp/355.2),3))*3))*3.774%1000)*100.0)/100.0
+
+	form.vaginakm.value		=findkm(factor68*6*factor)
+	form.vaginam.value		=findm(factor68*6*factor)
+	form.vaginacm.value		=findcm(factor68*6*factor)
+	form.labiakm.value			=findkm(factor68*1.75*factor)
+	form.labiam.value			=findm(factor68*1.75*factor)
+	form.labiacm.value			=findcm(factor68*1.75*factor)
+
+	form.palmkm.value			=findkm(wmnheightinch/9.2*0.525*factor)
+	form.palmm.value			=findm(wmnheightinch/9.2*0.525*factor)
+	form.palmcm.value			=findcm(wmnheightinch/9.2*0.525*factor)
+	form.fingerkm.value		=findkm(wmnheightinch/9.2*0.475*factor)
+	form.fingerm.value			=findm(wmnheightinch/9.2*0.475*factor)
+	form.fingercm.value		=findcm(wmnheightinch/9.2*0.475*factor)
+	form.ringkm.value			=findkm(factor68*0.68*factor)
+	form.ringm.value			=findm(factor68*0.68*factor)
+	form.ringcm.value			=findcm(factor68*0.68*factor)
+	form.armlengthkm.value		=findkm(factor68*22*factor)
+	form.armlengthm.value		=findm(factor68*22*factor)
+	form.armlengthcm.value		=findcm(factor68*22*factor)
+
+	form.crotchkm2.value		=findkm(headh*3.5*factor)
+	form.crotchm2.value		=findm(headh*3.5*factor)
+	form.crotchcm2.value		=findcm(headh*3.5*factor)
+	form.footwidthkm.value		=findkm(shoe*(0.334+shoecomp)*factor)
+	form.footwidthm.value		=findm(shoe*(0.334+shoecomp)*factor)
+	form.footwidthcm.value		=find2dcm(shoe*(0.334+shoecomp)*factor)
+	form.footlengthkm.value		=findkm(shoe*factor)
+	form.footlengthm.value		=findm(shoe*factor)
+	form.footlengthcm.value		=find2dcm(shoe*factor)
+
+}
+
+<!-- STANDARD FUNCTIONS -->
+
+function findmi(inches)		{ return(Math.floor(inches*1/63360)) }
+function findft(inches)		{ return(Math.floor((inches*1/12)%5280)) }
+function findin(inches)		{ return(Math.floor(inches*1%12)) }
+function find1din(inches)		{ return(Math.floor((inches*1%12)*10.0)/10.0) }
+function find2din(inches)		{ return(Math.floor((inches*1%12)*100.0)/100.0) }
+function findtons(weight)		{ return(Math.floor(weight/2000)) }
+function findpounds(weight)		{ return(Math.floor(weight%2000)) }
+function find2dlbs(weight)		{ return(Math.floor((weight%2000)*100.0)/100.0) }
+function find2dmph(height)		{ return(Math.floor(0*100.0)/100.0) }
+
+<!-- METRIC FUNCITONS -->
+
+function findkm(inches)		{ return(Math.floor((inches*2.54)/100000)) }
+function findm(inches)		{ return(Math.floor(((inches*2.54)/100)%1000)) }
+function findcm(inches)		{ return(Math.floor((inches*2.54)%100)) }
+function find1dcm(inches)		{ return(Math.floor(((inches*2.54)%100)*10.0)/10.0) }
+function find2dcm(inches)		{ return(Math.floor(((inches*2.54)%100)*100.0)/100.0) }
+function findmtons(weight)		{ return(Math.floor(weight*0.4536/1000)) }
+function findkgs(weight)		{ return(Math.floor(weight*0.4536%1000)) }
+function find2dkgs(weight)		{ return(Math.floor((weight*0.4536%1000)*100.0)/100.0) }
+
+<!-- ADD COMMAS -->
+
+function addCommas(nStr)
+{
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
+}
+
+</script>
+<div align="center"><font size="+2"><b>Giantess Converter v3.05</b></font>
+<p style="font-size:75%">v2.1 by Byl (Dec.01.2000)<br>v3.0+ by AbsentStar (Oct.08.2007 - Present)</p></div>
+
+<HR>
+
+<form name="gtsconverter">
+<b>Before she grows:</b><br>
+
+<tt>
+Her height:
+<input name="wmnfeet" size="1" value="5" type="text"> feet,
+<input name="wmninches" size="1" value="6" type="text"> inches<br>
+
+Her weight:
+<input name="wmnweight" size="1" value="100" type="text"> pounds<br>
+
+Breast size <b>**</b>:
+<select name="cup">
+	<option value="0.8">A&nbsp; &nbsp; &nbsp;</option>
+	<option value="1.6">B</option>
+	<option value="2.35" selected="selected">C</option>
+	<option value="3.05">D</option>
+	<option value="3.75">E</option>
+	<option value="4.4">F</option>
+	<option value="5.05">G</option>
+	<option value="5.65">H</option>
+	<option value="6.25">I</option>
+	<option value="6.8">J</option>
+</select> cup<br>
+
+Shoe size (US):
+<select name="shoe">
+	<option value="8">3</option>
+	<option value="8.19">3.5</option>
+	<option value="8.31">4</option>
+	<option value="8.5">4.5</option>
+	<option value="8.69">5</option>
+	<option value="8.81">5.5</option>
+	<option value="9">6</option>
+	<option value="9.19">6.5</option>
+	<option value="9.31">7</option>
+	<option value="9.5">7.5</option>
+	<option value="9.69" selected="selected">8</option>
+	<option value="9.81">8.5</option>
+	<option value="10">9</option>
+	<option value="10.19">9.5</option>
+	<option value="10.31">10</option>
+	<option value="10.5">10.5</option>
+	<option value="10.69">11</option>
+	<option value="10.81">11.5</option>
+	<option value="11">12</option>
+	<option value="11.19">12.5</option>
+	<option value="11.31">13</option>
+	<option value="11.5">13.5</option>
+	<option value="11.69">14</option>
+	<option value="11.81">14.5</option>
+	<option value="12">15</option>
+</select>
+<br>
+
+Measurements:
+Bust <input name="key1" size="1" value="36" type="text">
+Waist <input name="key2" size="1" value="24" type="text">
+Hips <input name="key3" size="1" value="36" type="text"><br>
+
+She can lift:
+<input name="gtslift" size="1" value="50" type="text"> pounds<br></tt>
+
+<p style="font-size:80%"><b>**</b><i>There is no US "standard" for cup sizes. This uses the new EUR system which is close to<br>&nbsp; &nbsp; &nbsp;the common US cup sizes.</i></p>
+
+<hr>
+
+<b>After she grows:</b>
+<tt><br>
+Her height as a giantess:
+<input name="gtsmiles" size="6" value="0" type="text"> miles,
+<input name="gtsfeet" size="3" value="50" type="text"> feet,
+<input name="gtsinches" size="1" value="0" type="text"> inches<br>
+</tt>
+
+<br>
+<div align="center"><input name="convertbutton" value="- Grow -" onclick="convert(this.form,
+	this.form.wmnfeet.value,
+	this.form.wmninches.value,
+	this.form.cup.options[this.form.cup.selectedIndex].value,
+	this.form.shoe.options[this.form.shoe.selectedIndex].value,
+	this.form.key1.value,
+	this.form.key2.value,
+	this.form.key3.value,
+	this.form.wmnweight.value,
+	this.form.gtsmiles.value,
+	this.form.gtsfeet.value,
+	this.form.gtsinches.value,
+	this.form.gtslift.value)" type="button"></div>
+
+<br>
+
+<table border="2" width="100%"><tbody>
+	<tr>
+		<td width="50%">
+			<div align="center"><font size="+2"><b>- STANDARD -</b></font></div>
+		</td>
+
+		<td width="50%">
+			<div align="center"><font size="+2"><b>- METRIC -</b></font></div>
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+		</td>
+		<td>
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<tt>
+			<div align="center"><b><font size="+1">Overall Size</font></b></div><br>
+			She <b>stands</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input name="gtsmi" size="6" type="text"> mi,
+			<input name="gtsft" size="3" type="text"> ft,
+			<input name="gtsin" size="1" type="text"> in tall<br>
+			Her <b>shoulders</b> are
+			<input name="shoulderwmi" size="6" type="text"> mi,
+			<input name="shoulderwft" size="3" type="text"> ft,
+			<input name="shoulderwin" size="1" type="text"> in wide<br>
+			Her <b>hips</b> are &nbsp; &nbsp;&nbsp;
+			<input name="hipwmi" size="6" type="text"> mi,
+			<input name="hipwft" size="3" type="text"> ft,
+			<input name="hipwin" size="1" type="text"> in wide<br>
+
+			She <b>weighs</b>&nbsp;&nbsp;
+			<input name="gtstons" size="24" type="text"> tons,
+			<input name="gtspounds" size="3" type="text"> pounds<br>
+			And can lift
+			<input name="gtslifttons" size="24" type="text"> tons,
+			<input name="gtsliftpounds" size="3" type="text"> pounds<br><br>
+
+			To her, a 6', 180 pound man would:<br>
+			<b>look</b>&nbsp;
+			<input name="manfeet" size="3" type="text"> feet,
+			<input name="maninches" size="3" type="text"> inches tall and<br>
+			<b>weigh</b>
+			<input name="manpounds" size="3" type="text"> pounds,
+			<input name="manounces" size="3" type="text"> ounces
+			<br><br>
+
+			<div align="center"><b><font size="+1">Measurements</font></b></div><br>
+			Bust: &nbsp;<input name="bustmi" size="6" type="text"> miles,
+			<input name="bustft" size="3" type="text"> feet,
+			<input name="bustin" size="1" type="text"> inches<br>
+			Waist: <input name="waistmi" size="6" type="text"> miles,
+			<input name="waistft" size="3" type="text"> feet,
+			<input name="waistin" size="1" type="text"> inches<br>
+			Hips: &nbsp;<input name="hipsmi" size="6" type="text"> miles,
+			<input name="hipsft" size="3" type="text"> feet,
+			<input name="hipsin" size="1" type="text"> inches<br><br>
+
+			<hr>
+
+			<div align="center"><b><font size="+1">Height of Key Points</font></b></div><br>
+			<input name="anklemi" size="6" type="text"> mi,
+			<input name="ankleft" size="3" type="text"> ft,
+			<input name="anklein" size="3" type="text"> in to her <b>ankle</b><br>
+			<input name="kneemi" size="6" type="text"> mi,
+			<input name="kneeft" size="3" type="text"> ft,
+			<input name="kneein" size="3" type="text"> in to her <b>knee</b><br>
+			<input name="crotchmi" size="6" type="text"> mi,
+			<input name="crotchft" size="3" type="text"> ft,
+			<input name="crotchin" size="3" type="text"> in to her <b>crotch</b><br>
+			<input name="hipmi" size="6" type="text"> mi,
+			<input name="hipft" size="3" type="text"> ft,
+			<input name="hipin" size="3" type="text"> in to her <b>hip</b><br>
+			<input name="breastmi" size="6" type="text"> mi,
+			<input name="breastft" size="3" type="text"> ft,
+			<input name="breastin" size="3" type="text"> in to the cusp of her <b>breasts</b><br>
+			<input name="neckmi" size="6" type="text"> mi,
+			<input name="neckft" size="3" type="text"> ft,
+			<input name="neckin" size="3" type="text"> in to the base of her <b>neck</b><br>
+			<input name="chinmi" size="6" type="text"> mi,
+			<input name="chinft" size="3" type="text"> ft,
+			<input name="chinin" size="3" type="text"> in to her <b>chin</b><br><br>
+			</tt>
+		</td>
+
+		<td><tt>
+			<div align="center"><b><font size="+1">Overall Size</font></b></div><br>
+			She <b>stands</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input name="gtskm" size="6" type="text"> km,
+			<input name="gtsm" size="3" type="text"> m,
+			<input name="gtscm" size="1" type="text"> cm tall<br>
+			Her <b>shoulders</b> are
+			<input name="shoulderwkm" size="6" type="text"> km,
+			<input name="shoulderwm" size="3" type="text"> m,
+			<input name="shoulderwcm" size="1" type="text"> cm wide<br>
+			Her <b>hips</b> are &nbsp; &nbsp;&nbsp;
+			<input name="hipwkm" size="6" type="text"> km,
+			<input name="hipwm" size="3" type="text"> m,
+			<input name="hipwcm" size="1" type="text"> cm wide<br>
+
+			She <b>weighs</b>&nbsp;&nbsp;
+			<input name="gtsmtons" size="24" type="text"> metric tons,
+			<input name="gtskgs" size="3" type="text"> kgs<br>
+			And can lift
+			<input name="gtsliftmtons" size="24" type="text"> metric tons,
+			<input name="gtsliftkgs" size="3" type="text"> kgs<br><br>
+
+			To her, a 1.8m, 81.5kg man would:<br>
+			<b>look</b>&nbsp;
+			<input name="manm" size="3" type="text"> meters,
+			<input name="mancm" size=3" type="text"> centimeters tall and<br>
+			<b>weigh</b>
+			<input name="mankg" size="3" type="text"> kilograms,
+			<input name="mang" size="3" type="text"> grams
+			<br><br>
+
+			<div align="center"><b><font size="+1">Measurements</font></b></div><br>
+			Bust: &nbsp;<input name="bustkm" size="6" type="text"> kilometers,
+			<input name="bustm" size="3" type="text"> meters,
+			<input name="bustcm" size="1" type="text"> centimeters<br>
+			Waist: <input name="waistkm" size="6" type="text"> kilometers,
+			<input name="waistm" size="3" type="text"> meters,
+			<input name="waistcm" size="1" type="text"> centimeters<br>
+			Hips: &nbsp;<input name="hipskm" size="6" type="text"> kilometers,
+			<input name="hipsm" size="3" type="text"> meters,
+			<input name="hipscm" size="1" type="text"> centimeters<br><br>
+
+			<hr>
+
+			<div align="center"><b><font size="+1">Height of Key Points</font></b></div><br>
+			<input name="anklekm" size="6" type="text"> km,
+			<input name="anklem" size="3" type="text"> m,
+			<input name="anklecm" size="3" type="text"> cm to her <b>ankle</b><br>
+			<input name="kneekm" size="6" type="text"> km,
+			<input name="kneem" size="3" type="text"> m,
+			<input name="kneecm" size="3" type="text"> cm to her <b>knee</b><br>
+			<input name="crotchkm" size="6" type="text"> km,
+			<input name="crotchm" size="3" type="text"> m,
+			<input name="crotchcm" size="3" type="text"> cm to her <b>crotch</b><br>
+			<input name="hipkm" size="6" type="text"> km,
+			<input name="hipm" size="3" type="text"> m,
+			<input name="hipcm" size="3" type="text"> cm to her <b>hip</b><br>
+			<input name="breastkm" size="6" type="text"> km,
+			<input name="breastm" size="3" type="text"> m,
+			<input name="breastcm" size="3" type="text"> cm to the cusp of her <b>breasts</b><br>
+			<input name="neckkm" size="6" type="text"> km,
+			<input name="neckm" size="3" type="text"> m,
+			<input name="neckcm" size="3" type="text"> cm to the base of her <b>neck</b><br>
+			<input name="chinkm" size="6" type="text"> km,
+			<input name="chinm" size="3" type="text"> m,
+			<input name="chincm" size="3" type="text"> cm to her <b>chin</b><br><br>
+			</tt>
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+		</td>
+		<td>
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<tt>
+			<div align="center"><b><font size="+1">Movement</font></b></div><br>
+			Her walking stride is
+			<input name="walkstridemi" size ="6" type="text"> mi
+			<input name="walkstrideft" size ="6" type="text"> ft
+			<input name="walkstridein" size ="3" type="text"> in long<br>
+			Her running stride is
+			<input name="runstridemi" size ="6" type="text"> mi
+			<input name="runstrideft" size ="6" type="text"> ft
+			<input name="runstridein" size ="3" type="text"> in long<br>
+			She walks at
+			<input name="walkspeedmph" size ="6" type="text"> mph<br>
+			She runs at&nbsp;
+			<input name="runspeedmph" size ="6" type="text"> mph<br><br><br>
+			Her steps produce&nbsp;
+			<input name="gtsstep" size="24" type="text"> joules<br>
+			Her stomp produces
+			<input name="gtsstomp" size="24" type="text"> joules<br>
+			Her hop produces&nbsp;&nbsp;
+			<input name="gtsjump" size="24" type="text"> joules<br><br><br>
+			</tt>
+		</td>
+		<td>
+			<tt>
+			<div align="center"><b><font size="+1">Movement</font></b></div><br>
+			Her walking stride is
+			<input name="walkstridekm" size ="6" type="text"> km
+			<input name="walkstridem" size ="6" type="text"> m
+			<input name="walkstridecm" size ="3" type="text"> cm long<br>
+			Her running stride is
+			<input name="runstridekm" size ="6" type="text"> km
+			<input name="runstridem" size ="6" type="text"> m
+			<input name="runstridecm" size ="3" type="text"> cm long<br>
+			She walks at
+			<input name="walkspeedkph" size ="6" type="text"> kph<br>
+			She runs at&nbsp;
+			<input name="runspeedkph" size ="6" type="text"> kph<br><br>
+			<b><u>Energy released by Earthquakes</u>:</b><br>
+			Magnitude 4 - 2.2e10 joules<br>
+			Magnitude 5 - 7.1e11 joules<br>
+			Magnitude 6 - 2.2e13 joules<br>
+			Magnitude 7 - 7.1e14 joules<br>
+			Magnitude 8 - 2.2e16 joules<br>
+			Magnitude 9 - 7.1e17 joules<br>
+			</tt>
+
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+		</td>
+		<td>
+		</td>
+	</tr>
+
+</tbody></table><br>
+
+<table border="2" width="100%"><tbody>
+
+	<tr>
+		<td width="50%"><tt>
+			<div align="center"><b><font size="+1">Head</font></b></div>
+			<br>
+
+			Her <b>hairs</b> are&nbsp;&nbsp;
+			<input name="hairmi" size="6" type="text"> mi,
+			<input name="hairft" size="3" type="text"> ft,
+			<input name="hairin" size="3" type="text"> in. in diameter<br><br>
+			Her <b>mouth</b> opens
+			<input name="mouthopenmi" size="6" type="text"> mi,
+			<input name="mouthopenft" size="3" type="text"> ft,
+			<input name="mouthopenin" size="3" type="text"> in tall<br>
+			Her <b>smile</b> is &nbsp;&nbsp;
+			<input name="lipsmi" size="6" type="text"> mi,
+			<input name="lipsft" size="3" type="text"> ft,
+			<input name="lipsin" size="3" type="text"> in wide<br><br>
+			Her <b>tongue</b> is &nbsp;
+			<input name="tonguemi" size="6" type="text"> mi,
+			<input name="tongueft" size="3" type="text"> ft,
+			<input name="tonguein" size="3" type="text"> in long and<br>
+			Can <b>stick out</b> &nbsp; <input name="tonguestickmi" size="6" type="text"> mi,
+			<input name="tonguestickft" size="3" type="text"> ft,
+			<input name="tonguestickin" size="3" type="text"> in<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Breasts</font></b></div>
+			<br>
+
+			Her <b>breasts</b> are each:<br>
+			<input name="breastheightmi" size="6" type="text"> miles,
+			<input name="breastheightft" size="3" type="text"> feet,
+			<input name="breastheightin" size="3" type="text"> inches high,<br>
+			<input name="breastwidthmi" size="6" type="text"> miles,
+			<input name="breastwidthft" size="3" type="text"> feet,
+			<input name="breastwidthin" size="3" type="text"> inches wide, and are<br>
+			<input name="breastdepthmi" size="6" type="text"> miles,
+			<input name="breastdepthft" size="3" type="text"> feet,
+			<input name="breastdepthin" size="3" type="text"> inches out from the chest<br>
+			And weigh <input name="breasttons" size="24" type="text"> tons,
+			<input name="breastpounds" size="5" type="text"> pounds<br><br>
+			Her <b>areolae</b> are:<br>
+			<input name="areoladiametermi" size="6" type="text"> miles,
+			<input name="areoladiameterft" size="3" type="text"> feet,
+			<input name="areoladiameterin" size="3" type="text"> inches in diameter<br>
+			Her <b>nipples</b> are:<br>
+			<input name="nipplediametermi" size="6" type="text"> miles,
+			<input name="nipplediameterft" size="3" type="text"> feet,
+			<input name="nipplediameterin" size="3" type="text"> inches in diameter<br>
+			<input name="nippleerrectmi" size="6" type="text"> miles,
+			<input name="nippleerrectft" size="3" type="text"> feet,
+			<input name="nippleerrectin" size="3" type="text"> inches long when erect<br>
+
+			<br>
+			<div align="center"><b><font size="+1">Milk</font></b></div>
+			<br>
+
+			Her <b>stream</b> is
+			<input name="milkductmi" size="6" type="text"> mi,
+			<input name="milkductft" size="3" type="text"> ft,
+			<input name="milkductin" size="3" type="text"> in. in diameter<br>
+			A <b>drop</b> is
+			<input name="milkdropga" size="24" type="text"> gallons,<br>
+			Which is &nbsp;<input name="milkdroptons" size="24" type="text"> tons,
+			<input name="milkdroppounds" size="3" type="text"> pounds<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Crotch</font></b></div>
+			<br>
+
+			Her <b>vagina</b> is
+			<input name="vaginami" size="6" type="text"> miles,
+			<input name="vaginaft" size="3" type="text"> feet,
+			<input name="vaginain" size="1" type="text"> inches deep<br>
+			Her <b>labia</b> is&nbsp;
+			<input name="labiami" size="6" type="text"> miles,
+			<input name="labiaft" size="3" type="text"> feet,
+			<input name="labiain" size="1" type="text"> inches tall<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Arms and Legs</font></b></div>
+			<br>
+
+			Her <b>arms</b> are&nbsp;
+			<input name="armlmi" size="6" type="text"> miles,
+			<input name="armlft" size="3" type="text"> feet,
+			<input name="armlin" size="1" type="text"> inches long<br>
+			Her <b>palms</b> are
+			<input name="palmmi" size="6" type="text"> miles,
+			<input name="palmft" size="3" type="text"> feet,
+			<input name="palmin" size="1" type="text"> inches wide<br>
+			Her <b>middle finger</b> is:<br>
+			<input name="fingermi" size="6" type="text"> miles,
+			<input name="fingerft" size="3" type="text"> feet,
+			<input name="fingerin" size="1" type="text"> inches long and<br>
+			<input name="ringmi" size="6" type="text"> miles,
+			<input name="ringft" size="3" type="text"> feet,
+			<input name="ringin" size="1" type="text"> inches thick<br><br>
+
+			Her <b>legs</b> (crotch to bottom of heel) are:<br>
+			<input name="crotchmi2" size="6" type="text"> miles,
+			<input name="crotchft2" size="3" type="text"> feet,
+			<input name="crotchin2" size="1" type="text"> inches long<br>
+			Her <b>feet</b> are:<br>
+			<input name="footwmi" size="6" type="text"> miles,
+			<input name="footwft" size="3" type="text"> feet,
+			<input name="footwin" size="3" type="text"> inches wide by<br>
+			<input name="footlmi" size="6" type="text"> miles,
+			<input name="footlft" size="3" type="text"> feet,
+			<input name="footlin" size="3" type="text"> inches long<br><br>
+		</tt></td>
+
+		<td width="50%"><tt>
+
+			<div align="center"><b><font size="+1">Head</font></b></div>
+			<br>
+
+			Her <b>hairs</b> are&nbsp;&nbsp;
+			<input name="hairkm" size="6" type="text"> km,
+			<input name="hairm" size="3" type="text"> m,
+			<input name="haircm" size="3" type="text"> cm in diameter<br><br>
+			Her <b>mouth</b> opens
+			<input name="mouthopenkm" size="6" type="text"> km,
+			<input name="mouthopenm" size="3" type="text"> m,
+			<input name="mouthopencm" size="3" type="text"> cm tall<br>
+			Her <b>smile</b> is &nbsp;&nbsp;
+			<input name="lipskm" size="6" type="text"> km,
+			<input name="lipsm" size="3" type="text"> m,
+			<input name="lipscm" size="3" type="text"> cm wide<br><br>
+			Her <b>tongue</b> is &nbsp;
+			<input name="tonguekm" size="6" type="text"> km,
+			<input name="tonguem" size="3" type="text"> m,
+			<input name="tonguecm" size="3" type="text"> cm long and<br>
+			Can <b>stick out</b> &nbsp; <input name="tongueoutkm" size="6" type="text"> km,
+			<input name="tongueoutm" size="3" type="text"> m,
+			<input name="tongueoutcm" size="3" type="text"> cm<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Breasts</font></b></div>
+			<br>
+
+			Her <b>breasts</b> are each:<br>
+			<input name="breastheightkm" size="6" type="text"> km,
+			<input name="breastheightm" size="3" type="text"> m,
+			<input name="breastheightcm" size="3" type="text"> cm high,<br>
+			<input name="breastwidthkm" size="6" type="text"> km,
+			<input name="breastwidthm" size="3" type="text"> m,
+			<input name="breastwidthcm" size="3" type="text"> cm wide, and are<br>
+			<input name="breastdepthkm" size="6" type="text"> km,
+			<input name="breastdepthm" size="3" type="text"> m,
+			<input name="breastdepthcm" size="3" type="text"> cm out from the chest<br>
+			And weigh <input name="breastmtons" size="24" type="text"> metric tons,
+			<input name="breastkgs" size="5" type="text"> kilograms<br><br>
+			Her <b>areolae</b> are:<br>
+			<input name="areoladiameterkm" size="6" type="text"> km,
+			<input name="areoladiameterm" size="3" type="text"> m,
+			<input name="areoladiametercm" size="3" type="text"> cm in diameter<br>
+			Her <b>nipples</b> are:<br>
+			<input name="nipplediameterkm" size="6" type="text"> km,
+			<input name="nipplediameterm" size="3" type="text"> m,
+			<input name="nipplediametercm" size="3" type="text"> cm in diameter<br>
+			<input name="nippleerrectkm" size="6" type="text"> km,
+			<input name="nippleerrectm" size="3" type="text"> m,
+			<input name="nippleerrectcm" size="3" type="text"> cm long when erect<br>
+
+			<br>
+			<div align="center"><b><font size="+1">Milk</font></b></div>
+			<br>
+
+			Her <b>stream</b> is
+			<input name="milkductkm" size="6" type="text"> km,
+			<input name="milkductm" size="3" type="text"> m,
+			<input name="milkductcm" size="3" type="text"> cm in diameter<br>
+			A <b>drop</b> is
+			<input name="milkdropli" size="24" type="text"> litres,<br>
+			Which is &nbsp;<input name="milkdropmtons" size="24" type="text"> metric tons,
+			<input name="milkdropkgs" size="3" type="text"> kilograms<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Crotch</font></b></div>
+			<br>
+
+			Her <b>vagina</b> is
+			<input name="vaginakm" size="6" type="text"> km,
+			<input name="vaginam" size="3" type="text"> m,
+			<input name="vaginacm" size="1" type="text"> cm deep<br>
+			Her <b>labia</b> is&nbsp;
+			<input name="labiakm" size="6" type="text"> km,
+			<input name="labiam" size="3" type="text"> m,
+			<input name="labiacm" size="1" type="text"> cm tall<br><br>
+
+			<hr>
+			<div align="center"><b><font size="+1">Arms and Legs</font></b></div>
+			<br>
+
+			Her <b>arms</b> are&nbsp;
+			<input name="armlengthkm" size="6" type="text"> km,
+			<input name="armlengthm" size="3" type="text"> m,
+			<input name="armlengthcm" size="1" type="text"> cm long<br>
+			Her <b>palms</b> are
+			<input name="palmkm" size="6" type="text"> km,
+			<input name="palmm" size="3" type="text"> m,
+			<input name="palmcm" size="1" type="text"> cm wide<br>
+			Her <b>middle finger</b> is:<br>
+			<input name="fingerkm" size="6" type="text"> km,
+			<input name="fingerm" size="3" type="text"> m,
+			<input name="fingercm" size="1" type="text"> cm long and<br>
+			<input name="ringkm" size="6" type="text"> km,
+			<input name="ringm" size="3" type="text"> m,
+			<input name="ringcm" size="1" type="text"> cm thick<br><br>
+
+			Her <b>legs</b> (crotch to bottom of heel) are:<br>
+			<input name="crotchkm2" size="6" type="text"> km,
+			<input name="crotchm2" size="3" type="text"> m,
+			<input name="crotchcm2" size="1" type="text"> cm long<br>
+			Her <b>feet</b> are:<br>
+			<input name="footwidthkm" size="6" type="text"> km,
+			<input name="footwidthm" size="3" type="text"> m,
+			<input name="footwidthcm" size="3" type="text"> cm wide by<br>
+			<input name="footlengthkm" size="6" type="text"> km,
+			<input name="footlengthm" size="3" type="text"> m,
+			<input name="footlengthcm" size="3" type="text"> cm long<br><br>
+		</tt></td>
+	</tr>
+
+</tbody></table>
+</form><br>
+
+<div align="center"><b><u><font size="+1">Reference Measurements</font></u></b></div><br>
+
+<table border="1" width="100%"><tbody>
+
+	<tr>
+		<td width="33%">
+			<div align="center"><b>- Living -</b></div><tt><br>
+			Tallest Human - 9 ft tall<br>
+			Elephant &nbsp;&nbsp;&nbsp; &nbsp;- 13 ft tall<br>
+			Giraffe &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;- 17 ft tall<br>
+			Blue Whale &nbsp; &nbsp;- 90 ft long<br>
+			Maple Tree &nbsp; &nbsp;- 30 to 130 ft tall<br>
+			Pine Tree &nbsp; &nbsp;&nbsp;- 50 to 150 ft tall<br>
+			Sequoia Tree &nbsp;- 300 ft tall<br>
+			Redwood Tree &nbsp;- 350 ft tall<br><br><br></tt>
+		</td>
+		<td width="34%">
+			<div align="center"><b>- Constructs -</b></div><tt><br>
+			Statue of Liberty &nbsp; &nbsp; - 151 ft tall<br>
+			Clock Tower (Big Ben) - 316 ft tall<br>
+			Washington Monument &nbsp; - 555 ft tall<br>
+			Seattle Space Needle &nbsp;- 605 ft tall<br>
+			Eiffel Tower &nbsp;- 1,063 ft tall<br>
+			Tokyo Tower &nbsp; - 1,091 ft tall<br>
+			Sears Tower &nbsp; - 1,450 ft tall<br>
+			CN Tower &nbsp; &nbsp; &nbsp;- 1,815 ft tall<br><br>
+
+			New York City covers 470 square miles<br></tt>
+		</td>
+		<td width="33%">
+			<div align="center"><b>- Common Interaction -</b></div><tt><br>
+			City Bus &nbsp; &nbsp;- 50 ft long, 9 tons*<br>
+			Train Car &nbsp; - 80 ft long, 25 tons*<br>
+			Boeing 747 &nbsp;- 231 ft long, 191 tons*<br>
+			Cruise Ship - 935 ft long, 83,000 tons*<br>
+			Oil Tanker &nbsp;- 1350 ft long, 500,000 tons<br><br>
+			Road Width - 11 ft / lane, 12 ft highway<br>
+			Sidewalk&nbsp;&nbsp; - 4 to 6 ft on each side<br><br>
+			*<i>Empty</i></tt>
+		</td>
+	</tr>
+
+</tbody></table>
+
+<table border="1" width="100%"><tbody>
+	<tr>
+		<td width="50%">
+			<div align="center"><b>- Geological -</b></div><tt><br>
+			Cloud layers Begin &nbsp;&nbsp;- Altitude 1km (3,280 ft)<br>
+			Cloud layers End &nbsp;&nbsp;&nbsp;&nbsp;- Altitude 12km (40,000 ft)<br>
+			Average Ocean Depth &nbsp;- 4km (13,120 ft)<br>
+			Mount Everest &nbsp; &nbsp; &nbsp; &nbsp;- 8.8km (29,000 ft)<br>
+			Troposphere (Oxygen) - Ends ~10 miles from Earth's Surface<br>
+			Japan &nbsp; &nbsp; - 1900 km (1180.6 mi) long<br>
+			Australia - 4000 km (2485.5 mi) wide, 3700 km (2299 mi) tall<br><br>
+			<i>Australia is comparable to the Continental US and Europe</i><br></tt>
+		</td>
+		<td width="50%">
+			<div align="center"><b>- Celestial -</b></div><tt><br>
+			Diameter of the Moon &nbsp;- 3475 km (2160 mi)<br>
+			Mass of the Moon &nbsp; &nbsp; &nbsp;- 7.35e22 kg (8.1e19 tons)<br>
+			Diameter of the Earth - 12750 km (7922.5 mi)<br>
+			Mass of the Earth &nbsp; &nbsp; - 5.97e24 kg (6.58e21 tons)<br>
+			Diameter of the Sun &nbsp; - 1.39e6 km (8.64e5 mi)<br>
+			Mass of the Sun &nbsp; &nbsp; &nbsp; - 1.989e30 kg (2.19e27 tons)<br>
+			Diameter of Solar System &nbsp;- 1.2e10 km (7.456e9 mi)<br>
+			Diameter of The Milky Way - 9.46e17 km (5.878e17 mi)<br><br>
+			</tt>
+		</td>
+	</tr>
+
+</tbody></table>
+<br>
+
+</body></html>t
