@@ -25,14 +25,14 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 300px 1fr 350px;
             gap: 20px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
             }
@@ -68,11 +68,12 @@
 
         input[type="number"], select {
             width: 100%;
-            padding: 10px;
+            max-width: 120px;
+            padding: 6px;
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
-            font-size: 16px;
+            font-size: 13px;
         }
 
         .row {
@@ -88,7 +89,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-end;
-            height: 500px;
+            height: 700px;
             background: #e0f7fa;
             border-radius: var(--border-radius);
             padding: 20px;
@@ -187,29 +188,58 @@
             width: 100%;
         }
 
+        /* Range buttons */
+        .range-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .range-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .range-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .range-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
     </style>
 </head>
 <body>
 
-    <h1>GTS Converter <span style="font-size: 0.6em; color: #666;">Visual Edition</span></h1>
+    <h1>GTS Converter 2025</h1>
 
     <div class="container">
         <!-- Left Column: Inputs -->
         <div class="left-col">
             <div class="card">
-                <h2>1. Before She Grows</h2>
+                <h2>Before Size</h2>
                 <div class="row">
                     <div class="input-group">
-                        <label>Height (Feet)</label>
+                        <label>Feet</label>
                         <input type="number" id="wmnfeet" value="5">
                     </div>
                     <div class="input-group">
-                        <label>Height (Inches)</label>
+                        <label>Inches</label>
                         <input type="number" id="wmninches" value="6">
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>Weight (lbs)</label>
+                    <label>Weight</label>
                     <input type="number" id="wmnweight" value="100">
                 </div>
                 <div class="row">
@@ -229,7 +259,7 @@
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Shoe Size (US)</label>
+                        <label>Shoe (US)</label>
                         <select id="shoe">
                             <option value="8">3</option>
                             <option value="8.69">5</option>
@@ -258,13 +288,13 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>Lift Capacity (lbs)</label>
+                    <label>Lift Capacity</label>
                     <input type="number" id="gtslift" value="50">
                 </div>
             </div>
 
             <div class="card">
-                <h2>2. Target Size</h2>
+                <h2>Target Size</h2>
                 <div class="row">
                     <div class="input-group">
                         <label>Miles</label>
@@ -281,7 +311,13 @@
                 </div>
                 <div class="input-group">
                     <label>Quick Scale Slider (approx)</label>
-                    <input type="range" id="heightSlider" min="10" max="500" value="50">
+                    <input type="range" id="heightSlider" min="7.5" max="500" value="50" step="0.5">
+                    <div class="range-buttons">
+                        <button class="range-btn" onclick="setRange('mini')">MiniGTS</button>
+                        <button class="range-btn active" onclick="setRange('gts')">GTS</button>
+                        <button class="range-btn" onclick="setRange('mega')">Mega</button>
+                        <button class="range-btn" onclick="setRange('giga')">Giga</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -292,70 +328,87 @@
                 <h2>Visual Comparison</h2>
                 <div class="visual-container">
                     <!-- SVG for ruler only -->
-                    <svg id="rulerSvg" viewBox="0 0 400 500" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 500px; pointer-events: none;">
+                    <svg id="rulerSvg" viewBox="0 0 400 700" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 700px; pointer-events: none;">
                         <g id="rulerGroup">
                             <!-- Main vertical line -->
-                            <line x1="50" y1="20" x2="50" y2="500" stroke="black" stroke-width="2" />
+                            <line x1="50" y1="20" x2="50" y2="700" stroke="black" stroke-width="2" />
                             <!-- Ticks and Text generated by JS -->
                         </g>
                     </svg>
                     
-                    <!-- Images positioned with CSS -->
-                    <img id="startPerson" src="female-silouette-strong.png" style="position: absolute; bottom: 0;" />
-                    <img id="giantessWoman" src="female-silouette-strong.png" style="position: absolute; bottom: 0;" />
-                    <img id="buildingRef" src="200ft-tall-bldg.png" style="position: absolute; bottom: 0; left: 360px;" />
+                    <!-- Images positioned with CSS - building first for z-index -->
+                    <img id="buildingRef" src="200ft-tall-bldg.png" style="position: absolute; bottom: 0; left: 500px; z-index: 1;" />
+                    <img id="startPerson" src="female-silouette-strong.png" style="position: absolute; bottom: 0; z-index: 2;" />
+                    <img id="giantessWoman" src="female-silouette-strong.png" style="position: absolute; bottom: 0; z-index: 2;" />
                 </div>
                 <div style="text-align: center; margin-top: 10px; font-style: italic; color: #666;">
                     Comparison: Starting Size vs Giantess Size
                 </div>
             </div>
+        </div>
 
+        <!-- Measurements Column (Right) -->
+        <div class="measurements-col">
             <div class="card">
-                <h2>Key Stats</h2>
-                <div class="results-grid">
-                    <div class="result-item">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('standard')">Standard</div>
+                    <div class="tab" onclick="switchTab('metric')">Metric</div>
+                    <div class="tab" onclick="switchTab('fun')">Fun</div>
+                </div>
+
+                <div id="standard" class="tab-content active">
+                    <div class="results-grid" id="standardGrid" style="grid-template-columns: 1fr;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div id="metric" class="tab-content">
+                    <div class="results-grid" id="metricGrid" style="grid-template-columns: 1fr;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div id="fun" class="tab-content">
+                    <div class="results-grid" id="funGrid" style="grid-template-columns: 1fr;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Stats - Spans full width -->
+        <div style="grid-column: 1 / -1;">
+            <div class="card" style="padding: 10px 20px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                    <div class="result-item" style="flex: 0 1 160px;">
                         <div class="result-label">Total Height</div>
                         <div class="result-value" id="resHeight">50 ft</div>
                     </div>
-                    <div class="result-item">
+                    <div class="result-item" style="flex: 0 1 160px;">
                         <div class="result-label">Weight</div>
                         <div class="result-value" id="resWeight">--</div>
                     </div>
-                    <div class="result-item">
-                        <div class="result-label">Bust Size</div>
-                        <div class="result-value" id="resBust">--</div>
+                    <div class="result-item" style="flex: 0 1 160px;">
+                        <div class="result-label">Measurements (B/W/H)</div>
+                        <div class="result-value" id="resMeasurements">--</div>
                     </div>
-                    <div class="result-item">
+                    <div class="result-item" style="flex: 0 1 160px;">
                         <div class="result-label">Foot Length</div>
                         <div class="result-value" id="resFoot">--</div>
+                    </div>
+                    <div class="result-item" style="flex: 0 1 160px;">
+                        <div class="result-label">Walk Speed</div>
+                        <div class="result-value" id="resWalkSpeed">--</div>
+                    </div>
+                    <div class="result-item" style="flex: 0 1 160px;">
+                        <div class="result-label">Run Speed</div>
+                        <div class="result-value" id="resRunSpeed">--</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('standard')">Standard Measurements</div>
-            <div class="tab" onclick="switchTab('metric')">Metric Measurements</div>
-            <div class="tab" onclick="switchTab('fun')">Fun Stats</div>
-        </div>
-
-        <div id="standard" class="tab-content active">
-            <div class="results-grid" id="standardGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-        <div id="metric" class="tab-content">
-            <div class="results-grid" id="metricGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-        <div id="fun" class="tab-content">
-            <div class="results-grid" id="funGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
+    <div style="text-align: center; font-size: 0.7em; color: #999; margin-top: 20px; padding: 10px;">
+        2025 by newmar42 (Nov 2025) - v3.x by AbsentStar (Oct.08.2007) - v2.1 by Byl (Dec 2000)
     </div>
 
 <script>
@@ -441,14 +494,43 @@
             console.log('Weight formatted and set:', formatWeight(totalWeight));
 
             const bustSize = key1 * factor;
-            console.log('Bust size calculated:', bustSize);
-            document.getElementById('resBust').innerText = formatHeight(bustSize);
-            console.log('Bust formatted and set:', formatHeight(bustSize));
+            const waistSize = key2 * factor;
+            const hipSize = key3 * factor;
+            
+            // Smart unit selection for measurements
+            const formatSimple = (inches) => {
+                if (inches >= 63360) { // Miles
+                    return (inches / 63360).toFixed(1);
+                } else if (inches >= 72) { // Feet (6ft threshold)
+                    return (inches / 12).toFixed(1);
+                } else { // Inches
+                    return inches.toFixed(1);
+                }
+            };
+            
+            const getUnit = (inches) => {
+                if (inches >= 63360) return 'mi';
+                if (inches >= 72) return 'ft'; // 6ft threshold
+                return 'in';
+            };
+            
+            const bust = formatSimple(bustSize);
+            const waist = formatSimple(waistSize);
+            const hip = formatSimple(hipSize);
+            const unit = getUnit(bustSize); // Use bust size for unit determination
+            
+            document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
 
             const footLen = shoe * factor;
             console.log('Foot length calculated:', footLen);
             document.getElementById('resFoot').innerText = formatHeight(footLen);
             console.log('Foot formatted and set:', formatHeight(footLen));
+
+            const walkSpeed = (Math.floor((factor68*26.5*factor*7200/63360)*10)/10);
+            document.getElementById('resWalkSpeed').innerText = walkSpeed + " mph";
+            
+            const runSpeed = (Math.floor((factor68*66*factor*9600/63360)*10)/10);
+            document.getElementById('resRunSpeed').innerText = runSpeed + " mph";
 
             // 5. Populate Grids
             console.log('About to populate grids...');
@@ -487,11 +569,10 @@
     }
 
     function updateVisuals(startInches, targetInches) {
-        // Visual Constants
-        const containerHeight = 500; // px
+        // Visual Constants - match .visual-container height (700px)
         const topY = 20;
-        const groundY = 500; // Bottom of SVG viewBox
-        const maxVisualHeight = groundY - topY; // 480px
+        const groundY = 700; // Match container height
+        const maxVisualHeight = groundY - topY; // 680px
 
         // 1. Giantess (Fixed visual height)
         const giantessWoman = document.getElementById('giantessWoman');
@@ -505,15 +586,15 @@
         const scaleRatio = startInches / targetInches;
         const startHeight = maxVisualHeight * scaleRatio;
         startPerson.style.height = startHeight + 'px';
-        startPerson.style.left = '100px';
+        startPerson.style.left = '75px';
 
         // 3. Building (200ft = 2400 inches, proportional scale)
         const buildingRef = document.getElementById('buildingRef');
         const buildingScaleRatio = BUILDING_REAL_HEIGHT_INCHES / targetInches;
         const buildingHeight = maxVisualHeight * buildingScaleRatio;
         buildingRef.style.height = buildingHeight + 'px';
-        // Left edge stays fixed at 360px - positioned to the right of giantess
-        buildingRef.style.left = '360px';
+        // Left edge stays fixed at 500px - positioned to the right of giantess
+        buildingRef.style.left = '500px';
         
         // 3. Ruler (Dynamic Values)
         const rulerGroup = document.getElementById('rulerGroup');
@@ -521,15 +602,15 @@
         // Actually, let's just rebuild the inner HTML of the group
         rulerGroup.innerHTML = `<line x1="50" y1="${topY}" x2="50" y2="${groundY}" stroke="black" stroke-width="2" />`;
         
-        // We want ticks at regular intervals.
-        // Total height = targetInches.
-        // Visual height = maxVisualHeight.
-        // Let's aim for ~10 ticks.
-        const numTicks = 10;
-        const intervalInches = targetInches / numTicks;
+        // Choose appropriate tick interval - doubling pattern (1ft, 2ft, 4ft, 8ft, etc.)
+        // Target: roughly 8-12 ticks on the ruler
+        let intervalInches = 12; // Start with 1 foot
+        while ((targetInches / intervalInches) > 12) {
+            intervalInches *= 2;
+        }
         
-        for (let i = 0; i <= numTicks; i++) {
-            const currentInches = i * intervalInches;
+        // Generate ticks
+        for (let currentInches = 0; currentInches <= targetInches; currentInches += intervalInches) {
             const visualY = groundY - ( (currentInches / targetInches) * maxVisualHeight );
             
             // Tick Line
@@ -541,13 +622,13 @@
             line.setAttribute("stroke", "black");
             rulerGroup.appendChild(line);
             
-            // Text Label
+            // Text Label - show both units for clarity
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
             text.setAttribute("x", "40");
             text.setAttribute("y", visualY + 4); // Center vertically
             text.setAttribute("text-anchor", "end");
             text.setAttribute("font-size", "12");
-            text.textContent = formatHeightShort(currentInches);
+            text.textContent = formatHeightShortWithBothUnits(currentInches);
             rulerGroup.appendChild(text);
         }
     }
@@ -558,6 +639,21 @@
             return (inches / 63360).toFixed(2) + "mi";
         } else if (inches >= 12) { // Feet
             return Math.round(inches / 12) + "ft";
+        } else {
+            return Math.round(inches) + "in";
+        }
+    }
+
+    function formatHeightShortWithBothUnits(inches) {
+        if (inches === 0) return "0";
+        if (inches >= 63360) { // Miles
+            const mi = Math.floor(inches / 63360);
+            const ft = Math.floor((inches % 63360) / 12);
+            return ft > 0 ? `${mi}mi ${ft}ft` : `${mi}mi`;
+        } else if (inches >= 12) { // Feet
+            const ft = Math.floor(inches / 12);
+            const inc = Math.floor(inches % 12);
+            return inc > 0 ? `${ft}ft ${inc}in` : `${ft}ft`;
         } else {
             return Math.round(inches) + "in";
         }
@@ -574,30 +670,17 @@
             grid.appendChild(div);
         };
 
-        // Shoulders
+        // Top to Bottom anatomical order
         const headw = (startInches / 7) * (2/3);
-        const shoulderW = headw * 2.9 * factor;
-        add("Shoulder Width", formatHeight(shoulderW));
-
-        // Hips
-        const hipW = headw * (2 + (key3/32 - 1) * 1.5) * factor;
-        add("Hip Width", formatHeight(hipW));
-
-        // Measurements
-        add("Bust", formatHeight(key1 * factor));
-        add("Waist", formatHeight(key2 * factor));
-        add("Hips", formatHeight(key3 * factor));
-
-        // Key Points
         const headh = startInches / 7;
-        add("Ankle Height", formatHeight(headh/3 * factor));
-        add("Knee Height", formatHeight(headh*1.875 * factor));
-        add("Crotch Height", formatHeight(headh*3.5 * factor));
-        add("Breast Height", formatHeight(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
         
-        // Movement
-        add("Walk Speed", (Math.floor((factor68*26.5*factor*7200/63360)*10)/10) + " mph");
-        add("Run Speed", (Math.floor((factor68*66*factor*9600/63360)*10)/10) + " mph");
+        add("Shoulder Width", formatHeight(headw * 2.9 * factor));
+        add("Breast Height", formatHeight(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
+        add("Hip Height", formatHeight(headh*4 * factor));
+        add("Hip Width", formatHeight(headw * (2 + (key3/32 - 1) * 1.5) * factor));
+        add("Crotch Height", formatHeight(headh*3.5 * factor));
+        add("Knee Height", formatHeight(headh*1.875 * factor));
+        add("Ankle Height", formatHeight(headh/3 * factor));
     }
 
     function populateMetricGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift) {
@@ -623,30 +706,17 @@
             }
         };
 
-        // Shoulders
+        // Top to Bottom anatomical order
         const headw = (startInches / 7) * (2/3);
-        const shoulderW = headw * 2.9 * factor;
-        add("Shoulder Width", formatMetric(shoulderW));
-
-        // Hips
-        const hipW = headw * (2 + (key3/32 - 1) * 1.5) * factor;
-        add("Hip Width", formatMetric(hipW));
-
-        // Measurements
-        add("Bust", formatMetric(key1 * factor));
-        add("Waist", formatMetric(key2 * factor));
-        add("Hips", formatMetric(key3 * factor));
-
-        // Key Points
         const headh = startInches / 7;
-        add("Ankle Height", formatMetric(headh/3 * factor));
-        add("Knee Height", formatMetric(headh*1.875 * factor));
-        add("Crotch Height", formatMetric(headh*3.5 * factor));
-        add("Breast Height", formatMetric(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
         
-        // Movement
-        add("Walk Speed", (Math.floor((factor68*61.31*factor*7200/100000)*10)/10) + " kph");
-        add("Run Speed", (Math.floor((factor68*167.64*factor*9600/100000)*10)/10) + " kph");
+        add("Shoulder Width", formatMetric(headw * 2.9 * factor));
+        add("Breast Height", formatMetric(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
+        add("Hip Height", formatMetric(headh*4 * factor));
+        add("Hip Width", formatMetric(headw * (2 + (key3/32 - 1) * 1.5) * factor));
+        add("Crotch Height", formatMetric(headh*3.5 * factor));
+        add("Knee Height", formatMetric(headh*1.875 * factor));
+        add("Ankle Height", formatMetric(headh/3 * factor));
     }
 
     function populateFunGrid(factor, factor68, factor120) {
@@ -707,14 +777,52 @@
         input.addEventListener('change', update);
     });
 
+    // Range presets
+    const RANGES = {
+        mini: { min: 7.5, max: 25, default: 15 },
+        gts: { min: 20, max: 200, default: 50 },
+        mega: { min: 200, max: 2500, default: 500 },
+        giga: { min: 500, max: 528000, default: 5000 }
+    };
+
+    let currentRange = 'gts';
+
+    function setRange(rangeType) {
+        currentRange = rangeType;
+        const range = RANGES[rangeType];
+        const slider = document.getElementById('heightSlider');
+        slider.min = range.min;
+        slider.max = range.max;
+        slider.value = range.default;
+        
+        // Update active button
+        document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Update target size
+        const feet = parseFloat(slider.value);
+        if (feet >= 5280) {
+            document.getElementById('gtsmiles').value = Math.floor(feet / 5280);
+            document.getElementById('gtsfeet').value = Math.floor(feet % 5280);
+        } else {
+            document.getElementById('gtsmiles').value = 0;
+            document.getElementById('gtsfeet').value = Math.floor(feet);
+        }
+        update();
+    }
+
     // Slider Logic
     const slider = document.getElementById('heightSlider');
     slider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value);
-        // Logarithmic-ish scale for better control? Or just linear for now.
-        // Let's map 0-500 to Feet.
-        document.getElementById('gtsfeet').value = val;
-        document.getElementById('gtsmiles').value = 0;
+        const val = parseFloat(e.target.value);
+        // Update target size based on value
+        if (val >= 5280) {
+            document.getElementById('gtsmiles').value = Math.floor(val / 5280);
+            document.getElementById('gtsfeet').value = Math.floor(val % 5280);
+        } else {
+            document.getElementById('gtsmiles').value = 0;
+            document.getElementById('gtsfeet').value = Math.floor(val);
+        }
         update();
     });
 
