@@ -146,6 +146,25 @@
             stroke: #333;
             stroke-width: 2;
         }
+        
+        /* Image positioning and blend effects */
+        #giantessWoman {
+            transition: all 0.5s ease;
+        }
+        
+        #startPerson {
+            transition: all 0.5s ease;
+        }
+        
+        #buildingRef {
+            transition: all 0.5s ease;
+            opacity: 0.8;
+        }
+        
+        /* SVG ruler - normal appearance, no blend effects */
+        #rulerSvg {
+            /* Normal black ruler */
+        }
 
         .results-grid {
             display: grid;
@@ -509,7 +528,7 @@
                 <h2>Visual Comparison</h2>
                 <div class="visual-container">
                     <!-- SVG for ruler only -->
-                    <svg id="rulerSvg" viewBox="0 0 400 700" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 700px; pointer-events: none;">
+                    <svg id="rulerSvg" viewBox="0 0 400 700" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 700px; pointer-events: none; z-index: 1;">
                         <g id="rulerGroup">
                             <!-- Main vertical line -->
                             <line x1="50" y1="20" x2="50" y2="700" stroke="black" stroke-width="2" />
@@ -519,7 +538,12 @@
                     
                     <!-- Images positioned with CSS - building first for z-index -->
                     <img id="buildingRef" src="200ft-tall-bldg.png" style="position: absolute; bottom: 0; left: 500px; z-index: 1;" />
-                    <img id="startPerson" src="female-silouette-strong.png" style="position: absolute; bottom: 0; z-index: 2;" />
+                    
+                    <!-- Anchor div for start person - positioned 160px from left edge -->
+                    <div id="startPersonAnchor" style="position: absolute; bottom: 0; left: 160px; width: 1px; height: 1px; overflow: visible; z-index: 10;">
+                        <img id="startPerson" src="female-silouette-strong.png" style="position: absolute; right: 0; bottom: 0;" />
+                    </div>
+                    
                     <img id="giantessWoman" src="female-silouette-strong.png" style="position: absolute; bottom: 0; z-index: 2;" />
                 </div>
                 <div style="text-align: center; margin-top: 10px; font-style: italic; color: #666;">
@@ -823,19 +847,40 @@
     </div>
 
 <script>
-    // --- SVG PATHS ---
-    // Simple paths for visualization
-    // Defined in a 0-400 coordinate system (width) and 0-500 (height)
-    // But we will transform them.
-    // Base Woman Path: Normalized to be approx 460px tall (filling the view from y=480 to y=20)
-    // Center X is 0 for the path definition, so we can translate it easily.
-    // Image constants
-    const WOMAN_IMAGE_WIDTH = 100;
-    const WOMAN_IMAGE_HEIGHT = 240;
+    // ========================================
+    // CONSTANTS AND CONFIGURATION
+    // ========================================
+    
+    // Visual rendering constants
     const BUILDING_REAL_HEIGHT_FEET = 200;
     const BUILDING_REAL_HEIGHT_INCHES = BUILDING_REAL_HEIGHT_FEET * 12; // 2400 inches
-
-    // --- HELPER FUNCTIONS ---
+    
+    // Unit conversion constants
+    const INCHES_TO_CM = 2.54;
+    const LBS_TO_KG = 0.453592;
+    const FEET_TO_METERS = 0.3048;
+    
+    // Application state
+    let currentOutputUnit = 'standard';  // Tracks current display unit preference
+    let currentRange = 'gts';            // Tracks current size range selection
+    
+    // Range presets for slider controls
+    const RANGES = {
+        mini: { min: 7.5, max: 25, default: 15 },
+        gts: { min: 20, max: 200, default: 50 },
+        mega: { min: 200, max: 2500, default: 500 },
+        giga: { min: 500, max: 528000, default: 5000 }
+    };
+    
+    // ========================================
+    // UTILITY FUNCTIONS
+    // ========================================
+    
+    /**
+     * Adds comma separators to large numbers for readability
+     * @param {string|number} nStr - Number to format
+     * @returns {string} Formatted number with commas
+     */
     function addCommas(nStr) {
         nStr += '';
         var x = nStr.split('.');
@@ -847,23 +892,21 @@
         }
         return x1 + x2;
     }
-
-    // Pre-load images
+    
+    // Pre-load images to prevent display delays
     const femaleImg = new Image();
     femaleImg.src = 'female-silouette-strong.png';
     const buildingImg = new Image();
     buildingImg.src = '200ft-tall-bldg.png';
 
-    // --- LOGIC ---
-
-    // Conversion constants
-    const INCHES_TO_CM = 2.54;
-    const LBS_TO_KG = 0.453592;
-    const FEET_TO_METERS = 0.3048;
-
-    // Track current output unit preference
-    let currentOutputUnit = 'standard';
-
+    // ========================================
+    // INPUT/OUTPUT SYNCHRONIZATION FUNCTIONS
+    // ========================================
+    
+    /**
+     * Updates metric inputs and outputs when standard inputs change
+     * This is the main orchestrator function called when any standard input changes
+     */
     function updateFromStandard() {
         // Read standard inputs
         const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
@@ -932,6 +975,10 @@
         updateOutputsFromStandard(currentOutputUnit);
     }
 
+    /**
+     * Updates standard inputs and outputs when metric inputs change
+     * Converts metric values back to standard units and triggers recalculation
+     */
     function updateFromMetric() {
         // Read metric inputs
         const wmnmeters = parseFloat(document.getElementById('wmnmeters').value) || 0;
@@ -984,6 +1031,14 @@
         updateOutputsFromStandard(currentOutputUnit);
     }
 
+    // ========================================
+    // CORE CALCULATION AND RENDERING PIPELINE
+    // ========================================
+    
+    /**
+     * Main calculation and rendering pipeline - processes all inputs and updates UI
+     * @param {string} outputUnit - Display unit preference ('standard' or 'metric')
+     */
     function updateOutputsFromStandard(outputUnit = 'standard') {
         // 1. Get Inputs (from standard)
         const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
@@ -1059,6 +1114,15 @@
         }
     }
 
+    // ========================================
+    // FORMATTING UTILITY FUNCTIONS
+    // ========================================
+    
+    /**
+     * Formats height measurements for display in imperial units
+     * @param {number} inches - Height in inches to format
+     * @returns {string} Formatted height string
+     */
     function formatHeight(inches) {
         if (inches >= 63360) {
             const mi = Math.floor(inches / 63360);
@@ -1073,6 +1137,11 @@
         }
     }
 
+    /**
+     * Formats weight measurements for display in imperial units
+     * @param {number} lbs - Weight in pounds to format
+     * @returns {string} Formatted weight string
+     */
     function formatWeight(lbs) {
         if (lbs >= 2000) {
             const tons = Math.floor(lbs / 2000);
@@ -1082,6 +1151,15 @@
         return `${addCommas(Math.floor(lbs))} lbs`;
     }
 
+    // ========================================
+    // VISUAL RENDERING SYSTEM
+    // ========================================
+    
+    /**
+     * Updates the visual comparison display with scaled images and ruler
+     * @param {number} startInches - Starting height in inches for scale reference
+     * @param {number} targetInches - Target giantess height in inches
+     */
     function updateVisuals(startInches, targetInches) {
         // Visual Constants - match .visual-container height (700px)
         const topY = 20;
@@ -1095,12 +1173,12 @@
         giantessWoman.style.left = '160px';
         giantessWoman.style.transform = '';
 
-        // 2. Starting Person (Proportional)
+        // 2. Starting Person (Proportional, right-aligned within anchor div)
         const startPerson = document.getElementById('startPerson');
         const scaleRatio = startInches / targetInches;
         const startHeight = maxVisualHeight * scaleRatio;
         startPerson.style.height = startHeight + 'px';
-        startPerson.style.left = '140px';
+        // Right edge stays fixed at anchor position due to right: 0 positioning within anchor div
 
         // 3. Building (200ft = 2400 inches, proportional scale)
         const buildingRef = document.getElementById('buildingRef');
@@ -1176,6 +1254,11 @@
         }
     }
 
+    /**
+     * Formats height for compact ruler display (imperial)
+     * @param {number} inches - Height in inches
+     * @returns {string} Compact height format
+     */
     function formatHeightShort(inches) {
         if (inches === 0) return "0";
         if (inches >= 63360) { // Miles
@@ -1187,6 +1270,11 @@
         }
     }
 
+    /**
+     * Formats height for ruler display with appropriate unit scaling
+     * @param {number} inches - Height in inches
+     * @returns {string} Height format optimized for ruler labels
+     */
     function formatHeightShortWithBothUnits(inches) {
         if (inches === 0) return "0";
         if (inches >= 30000) { // 2500 feet (30000 inches) - show in miles with decimal
@@ -1204,6 +1292,11 @@
         }
     }
 
+    /**
+     * Formats height for compact ruler display (metric)
+     * @param {number} inches - Height in inches
+     * @returns {string} Compact metric height format
+     */
     function formatHeightMetricShort(inches) {
         if (inches === 0) return "0";
         
@@ -1217,6 +1310,27 @@
         }
     }
 
+    // ========================================
+    // CORE CALCULATION ENGINE
+    // ========================================
+    
+    /**
+     * Pure calculation function that computes all giantess measurements
+     * This function has no side effects - it only calculates and returns data
+     * @param {number} factor - Overall size scaling factor
+     * @param {number} factor68 - Normalization factor based on 5'8" baseline
+     * @param {number} factor120 - Weight normalization factor based on 120lbs baseline
+     * @param {number} startHeightInches - Starting height in inches
+     * @param {number} targetHeightInches - Target height in inches
+     * @param {number} cup - Cup size factor
+     * @param {number} shoe - Shoe size in inches
+     * @param {number} key1 - Bust measurement in inches
+     * @param {number} key2 - Waist measurement in inches
+     * @param {number} key3 - Hip measurement in inches
+     * @param {number} gtslift - Lifting capacity in pounds
+     * @param {number} wmnweight - Starting weight in pounds
+     * @returns {Object} Complete measurements object with unit-labeled properties
+     */
     function calculateAllMeasurements(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, wmnweight) {
         const headw = (startHeightInches / 7) * (2/3);
         const headh = startHeightInches / 7;
@@ -1489,6 +1603,11 @@
         `;
     }
     
+    /**
+     * Renders the Crotch measurements accordion section
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
     function renderCrotchSection(measurements, outputUnit) {
         const container = document.getElementById('crotchContent');
         const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
@@ -1514,6 +1633,11 @@
         `;
     }
     
+    /**
+     * Renders the Arms & Legs measurements accordion section
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
     function renderArmsLegsSection(measurements, outputUnit) {
         const container = document.getElementById('armsLegsContent');
         const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
@@ -1551,6 +1675,11 @@
         `;
     }
     
+    /**
+     * Renders the Movement measurements accordion section (includes energy calculations)
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
     function renderMovementSection(measurements, outputUnit) {
         const container = document.getElementById('movementContent');
         const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
@@ -1612,6 +1741,11 @@
         `;
     }
     
+    /**
+     * Renders the key statistics bar at the bottom of the page
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
     function renderKeyStats(measurements, outputUnit) {
         // Helper functions for formatting
         const formatHeightDisplay = (inches) => {
@@ -1701,11 +1835,15 @@
         }
     }
     
-    // Removed renderMeasurementsGrid - replaced by accordion sections
+    // ========================================
+    // USER INTERACTION HANDLERS
+    // ========================================
     
-    // Energy rendering moved to Movement section
-
-    // Accordion functionality
+    /**
+     * Handles accordion section toggle - ensures only one section open at a time
+     * @param {string} sectionName - Name of the section to toggle
+     * @param {Element} headerElement - The header element that was clicked
+     */
     function toggleAccordion(sectionName, headerElement) {
         const allHeaders = document.querySelectorAll('.accordion-header');
         const allContents = document.querySelectorAll('.accordion-content');
@@ -1719,9 +1857,12 @@
         headerElement.classList.add('active');
         targetContent.classList.add('active');
     }
-    
-    // Old functions removed - replaced by new JSON-based rendering functions above
 
+    /**
+     * Switches between standard and metric output units for display
+     * @param {string} unitType - Either 'standard' or 'metric'
+     * @param {Element} buttonElement - The button that was clicked
+     */
     function switchOutputUnit(unitType, buttonElement) {
         // Update current output unit
         currentOutputUnit = unitType;
@@ -1735,6 +1876,11 @@
         updateOutputsFromStandard(unitType);
     }
 
+    /**
+     * Switches between standard and metric input forms
+     * @param {string} unitType - Either 'standard' or 'metric'
+     * @param {Element} buttonElement - The button that was clicked
+     */
     function switchInputUnit(unitType, buttonElement) {
         // Update current output unit to match input unit
         currentOutputUnit = unitType;
@@ -1810,6 +1956,10 @@
         updateFromStandard();
     }
 
+    // ========================================
+    // EVENT LISTENERS SETUP
+    // ========================================
+    
     // Event Listeners - Standard inputs
     const standardInputIds = ['wmnfeet', 'wmninches', 'wmnweight', 'cup', 'shoe', 'key1', 'key2', 'key3', 'gtslift', 'gtsmiles', 'gtsfeet', 'gtsinches'];
     standardInputIds.forEach(id => {
@@ -1830,15 +1980,7 @@
         }
     });
 
-    // Range presets
-    const RANGES = {
-        mini: { min: 7.5, max: 25, default: 15 },
-        gts: { min: 20, max: 200, default: 50 },
-        mega: { min: 200, max: 2500, default: 500 },
-        giga: { min: 500, max: 528000, default: 5000 }
-    };
-
-    let currentRange = 'gts';
+    // Range presets moved to top of file in constants section
 
     function setRange(rangeType, buttonElement) {
         currentRange = rangeType;
@@ -1939,7 +2081,11 @@
         updateFromMetric();
     });
 
-    // Initial Call
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    
+    // Initial calculation and rendering call
     updateFromStandard();
 
 </script>
