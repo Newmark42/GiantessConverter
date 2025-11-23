@@ -170,6 +170,11 @@
             color: var(--primary-color);
         }
 
+        /* Smaller font for bottom stats section */
+        .card[style*="padding: 10px 20px"] .result-value {
+            font-size: 0.8em;
+        }
+
         .tabs {
             display: flex;
             margin-bottom: 15px;
@@ -877,35 +882,52 @@
         const giantessWoman = document.getElementById('giantessWoman');
         const giantessHeight = maxVisualHeight;
         giantessWoman.style.height = giantessHeight + 'px';
-        giantessWoman.style.left = '50%';
-        giantessWoman.style.transform = 'translateX(-50%)';
+        giantessWoman.style.left = '160px';
+        giantessWoman.style.transform = '';
 
         // 2. Starting Person (Proportional)
         const startPerson = document.getElementById('startPerson');
         const scaleRatio = startInches / targetInches;
         const startHeight = maxVisualHeight * scaleRatio;
         startPerson.style.height = startHeight + 'px';
-        startPerson.style.left = '75px';
+        startPerson.style.left = '140px';
 
         // 3. Building (200ft = 2400 inches, proportional scale)
         const buildingRef = document.getElementById('buildingRef');
         const buildingScaleRatio = BUILDING_REAL_HEIGHT_INCHES / targetInches;
         const buildingHeight = maxVisualHeight * buildingScaleRatio;
         buildingRef.style.height = buildingHeight + 'px';
-        // Left edge stays fixed at 500px - positioned to the right of giantess
-        buildingRef.style.left = '500px';
+        // Left edge positioned to the right of giantess
+        buildingRef.style.left = '420px';
         
         // 3. Ruler (Dynamic Values)
         const rulerGroup = document.getElementById('rulerGroup');
-        // Clear old ticks (except the main line)
-        // Actually, let's just rebuild the inner HTML of the group
-        rulerGroup.innerHTML = `<line x1="50" y1="${topY}" x2="50" y2="${groundY}" stroke="black" stroke-width="2" />`;
+        rulerGroup.innerHTML = `<line x1="75" y1="${topY}" x2="75" y2="${groundY}" stroke="black" stroke-width="2" />`;
         
-        // Choose appropriate tick interval - doubling pattern (1ft, 2ft, 4ft, 8ft, etc.)
-        // Target: roughly 8-12 ticks on the ruler
-        let intervalInches = 12; // Start with 1 foot
-        while ((targetInches / intervalInches) > 12) {
-            intervalInches *= 2;
+        // Choose appropriate tick interval based on current unit mode
+        let intervalInches;
+        
+        if (currentOutputUnit === 'metric') {
+            // For metric mode: use nice round metric intervals
+            const targetCm = targetInches * INCHES_TO_CM;
+            let intervalCm = 10; // Start with 10cm
+            
+            // Nice metric intervals: 10cm, 20cm, 50cm, 100cm, 2m, 5m, 10m, 20m, 50m, 100m, 1km, 10km, 100km
+            const niceIntervals = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 1000000, 5000000, 10000000];
+            
+            for (let i = 0; i < niceIntervals.length; i++) {
+                intervalCm = niceIntervals[i];
+                if ((targetCm / intervalCm) <= 12) break;
+            }
+            
+            // Convert to inches for positioning
+            intervalInches = intervalCm / INCHES_TO_CM;
+        } else {
+            // For standard mode: doubling pattern (1ft, 2ft, 4ft, 8ft, etc.)
+            intervalInches = 12; // Start with 1 foot
+            while ((targetInches / intervalInches) > 12) {
+                intervalInches *= 2;
+            }
         }
         
         // Generate ticks
@@ -914,9 +936,9 @@
             
             // Tick Line
             const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", "45");
+            line.setAttribute("x1", "70");
             line.setAttribute("y1", visualY);
-            line.setAttribute("x2", "55");
+            line.setAttribute("x2", "80");
             line.setAttribute("y2", visualY);
             line.setAttribute("stroke", "black");
             rulerGroup.appendChild(line);
@@ -925,7 +947,7 @@
             if (currentInches > 0) {
                 // Text Label - Standard units (left side)
                 const textStandard = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                textStandard.setAttribute("x", "40");
+                textStandard.setAttribute("x", "65");
                 textStandard.setAttribute("y", visualY + 4);
                 textStandard.setAttribute("text-anchor", "end");
                 textStandard.setAttribute("font-size", "12");
@@ -934,7 +956,7 @@
                 
                 // Text Label - Metric units (right side)
                 const textMetric = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                textMetric.setAttribute("x", "60");
+                textMetric.setAttribute("x", "85");
                 textMetric.setAttribute("y", visualY + 4);
                 textMetric.setAttribute("text-anchor", "start");
                 textMetric.setAttribute("font-size", "12");
@@ -957,11 +979,13 @@
 
     function formatHeightShortWithBothUnits(inches) {
         if (inches === 0) return "0";
-        if (inches >= 63360) { // Miles
-            const mi = Math.floor(inches / 63360);
-            const ft = Math.floor((inches % 63360) / 12);
-            return ft > 0 ? `${mi}mi ${ft}ft` : `${mi}mi`;
-        } else if (inches >= 12) { // Feet
+        if (inches >= 30000) { // 2500 feet (30000 inches) - show in miles with decimal
+            const mi = inches / 63360; // 63360 inches = 1 mile
+            return mi.toFixed(1) + "mi";
+        } else if (inches >= 240) { // 20 feet - omit inches above this
+            const ft = Math.floor(inches / 12);
+            return ft + "ft";
+        } else if (inches >= 12) { // Below 20 feet - show inches
             const ft = Math.floor(inches / 12);
             const inc = Math.floor(inches % 12);
             return inc > 0 ? `${ft}ft ${inc}in` : `${ft}ft`;
@@ -974,10 +998,10 @@
         if (inches === 0) return "0";
         
         const cm = inches * INCHES_TO_CM;
-        if (cm >= 100000) {
+        if (cm >= 100000) { // 1km+ - show with decimal for precision
             return (cm / 100000).toFixed(1) + "km";
-        } else if (cm >= 1000) {
-            return (cm / 100).toFixed(1) + "m";
+        } else if (cm >= 1000) { // 10m+
+            return Math.round(cm / 100) + "m";
         } else {
             return Math.round(cm) + "cm";
         }
