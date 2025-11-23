@@ -456,20 +456,8 @@
         <!-- Measurements Column (Right) -->
         <div class="measurements-col">
             <div class="card">
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab('standard')">Standard</div>
-                    <div class="tab" onclick="switchTab('metric')">Metric</div>
-                </div>
-
-                <div id="standard" class="tab-content active">
-                    <div class="results-grid" id="standardGrid" style="grid-template-columns: 1fr;">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-                <div id="metric" class="tab-content">
-                    <div class="results-grid" id="metricGrid" style="grid-template-columns: 1fr;">
-                        <!-- Populated by JS -->
-                    </div>
+                <div class="results-grid" id="measurementsGrid" style="grid-template-columns: 1fr;">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </div>
@@ -564,6 +552,9 @@
     const LBS_TO_KG = 0.453592;
     const FEET_TO_METERS = 0.3048;
 
+    // Track current output unit preference
+    let currentOutputUnit = 'standard';
+
     function updateFromStandard() {
         // Read standard inputs
         const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
@@ -619,7 +610,7 @@
         }
 
         // Update outputs
-        updateOutputsFromStandard();
+        updateOutputsFromStandard(currentOutputUnit);
     }
 
     function updateFromMetric() {
@@ -671,10 +662,10 @@
         }
 
         // Update outputs
-        updateOutputsFromStandard();
+        updateOutputsFromStandard(currentOutputUnit);
     }
 
-    function updateOutputsFromStandard() {
+    function updateOutputsFromStandard(outputUnit = 'standard') {
         // 1. Get Inputs (from standard)
         const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
         const wmninches = parseFloat(document.getElementById('wmninches').value) || 0;
@@ -714,59 +705,124 @@
             console.log('Visuals updated successfully');
 
             // 4. Update Key Stats
-            document.getElementById('resHeight').innerText = formatHeight(targetHeightInches);
-            console.log('Height updated:', formatHeight(targetHeightInches));
-            
-            const totalWeight = factor120 * 120 * Math.pow(factor, 3);
-            console.log('Total weight calculated:', totalWeight);
-            document.getElementById('resWeight').innerText = formatWeight(totalWeight);
-            console.log('Weight formatted and set:', formatWeight(totalWeight));
+            // Helper for metric formatting (same as in populateMeasurementsGrid)
+            const formatMetricValue = (inches) => {
+                const cm = inches * 2.54;
+                if (cm >= 100000) { // 1km
+                    return (Math.floor(cm / 100000 * 100) / 100) + " km";
+                } else if (cm >= 1000) { // 10m - only show meters above this
+                    return (Math.floor(cm / 100 * 100) / 100) + " m";
+                } else {
+                    return (Math.floor(cm * 10) / 10) + " cm";
+                }
+            };
 
+            const formatWeightMetric = (lbs) => {
+                const kg = lbs * LBS_TO_KG;
+                if (kg >= 1000000) {
+                    return (Math.floor(kg / 1000000 * 100) / 100) + " million kg";
+                } else if (kg >= 1000) {
+                    return (Math.floor(kg / 1000 * 100) / 100) + " tonnes";
+                } else {
+                    return Math.floor(kg) + " kg";
+                }
+            };
+
+            // Total Height
+            if (outputUnit === 'metric') {
+                document.getElementById('resHeight').innerText = formatMetricValue(targetHeightInches);
+            } else {
+                document.getElementById('resHeight').innerText = formatHeight(targetHeightInches);
+            }
+            
+            // Weight
+            const totalWeight = factor120 * 120 * Math.pow(factor, 3);
+            if (outputUnit === 'metric') {
+                document.getElementById('resWeight').innerText = formatWeightMetric(totalWeight);
+            } else {
+                document.getElementById('resWeight').innerText = formatWeight(totalWeight);
+            }
+
+            // Measurements (B/W/H)
             const bustSize = key1 * factor;
             const waistSize = key2 * factor;
             const hipSize = key3 * factor;
             
-            // Smart unit selection for measurements
-            const formatSimple = (inches) => {
-                if (inches >= 63360) { // Miles
-                    return (inches / 63360).toFixed(1);
-                } else if (inches >= 72) { // Feet (6ft threshold)
-                    return (inches / 12).toFixed(1);
-                } else { // Inches
-                    return inches.toFixed(1);
-                }
-            };
-            
-            const getUnit = (inches) => {
-                if (inches >= 63360) return 'mi';
-                if (inches >= 72) return 'ft'; // 6ft threshold
-                return 'in';
-            };
-            
-            const bust = formatSimple(bustSize);
-            const waist = formatSimple(waistSize);
-            const hip = formatSimple(hipSize);
-            const unit = getUnit(bustSize); // Use bust size for unit determination
-            
-            document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
+            if (outputUnit === 'metric') {
+                const bustCm = bustSize * INCHES_TO_CM;
+                const waistCm = waistSize * INCHES_TO_CM;
+                const hipCm = hipSize * INCHES_TO_CM;
+                
+                const formatMeasurement = (cm) => {
+                    if (cm >= 100000) return (cm / 100000).toFixed(1);
+                    if (cm >= 1000) return (cm / 100).toFixed(1);
+                    return cm.toFixed(1);
+                };
+                
+                const getUnitMeasurement = (cm) => {
+                    if (cm >= 100000) return 'km';
+                    if (cm >= 1000) return 'm';
+                    return 'cm';
+                };
+                
+                const bust = formatMeasurement(bustCm);
+                const waist = formatMeasurement(waistCm);
+                const hip = formatMeasurement(hipCm);
+                const unit = getUnitMeasurement(bustCm);
+                
+                document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
+            } else {
+                // Smart unit selection for measurements (standard)
+                const formatSimple = (inches) => {
+                    if (inches >= 63360) { // Miles
+                        return (inches / 63360).toFixed(1);
+                    } else if (inches >= 72) { // Feet (6ft threshold)
+                        return (inches / 12).toFixed(1);
+                    } else { // Inches
+                        return inches.toFixed(1);
+                    }
+                };
+                
+                const getUnit = (inches) => {
+                    if (inches >= 63360) return 'mi';
+                    if (inches >= 72) return 'ft'; // 6ft threshold
+                    return 'in';
+                };
+                
+                const bust = formatSimple(bustSize);
+                const waist = formatSimple(waistSize);
+                const hip = formatSimple(hipSize);
+                const unit = getUnit(bustSize);
+                
+                document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
+            }
 
+            // Foot Length
             const footLen = shoe * factor;
-            console.log('Foot length calculated:', footLen);
-            document.getElementById('resFoot').innerText = formatHeight(footLen);
-            console.log('Foot formatted and set:', formatHeight(footLen));
+            if (outputUnit === 'metric') {
+                document.getElementById('resFoot').innerText = formatMetricValue(footLen);
+            } else {
+                document.getElementById('resFoot').innerText = formatHeight(footLen);
+            }
 
-            const walkSpeed = (Math.floor((factor68*26.5*factor*7200/63360)*10)/10);
-            document.getElementById('resWalkSpeed').innerText = walkSpeed + " mph";
+            // Walk/Run Speed (convert mph to km/h for metric)
+            const walkSpeedMph = (Math.floor((factor68*26.5*factor*7200/63360)*10)/10);
+            const runSpeedMph = (Math.floor((factor68*66*factor*9600/63360)*10)/10);
             
-            const runSpeed = (Math.floor((factor68*66*factor*9600/63360)*10)/10);
-            document.getElementById('resRunSpeed').innerText = runSpeed + " mph";
+            if (outputUnit === 'metric') {
+                const walkSpeedKmh = Math.floor(walkSpeedMph * 1.60934 * 10) / 10;
+                const runSpeedKmh = Math.floor(runSpeedMph * 1.60934 * 10) / 10;
+                document.getElementById('resWalkSpeed').innerText = walkSpeedKmh + " km/h";
+                document.getElementById('resRunSpeed').innerText = runSpeedKmh + " km/h";
+            } else {
+                document.getElementById('resWalkSpeed').innerText = walkSpeedMph + " mph";
+                document.getElementById('resRunSpeed').innerText = runSpeedMph + " mph";
+            }
 
-            // 5. Populate Grids
-            console.log('About to populate grids...');
-            populateStandardGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift);
-            console.log('Standard grid populated');
-            populateMetricGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift);
-            console.log('Metric grid populated');
+            // 5. Populate Measurements Grid
+            console.log('About to populate measurements grid...');
+            populateMeasurementsGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, outputUnit);
+            console.log('Measurements grid populated');
             populateFunMetrics(factor, factor68, factor120);
             console.log('Fun metrics populated');
         } catch (error) {
@@ -888,32 +944,8 @@
         }
     }
 
-    function populateStandardGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift) {
-        const grid = document.getElementById('standardGrid');
-        grid.innerHTML = '';
-
-        const add = (label, value) => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
-            grid.appendChild(div);
-        };
-
-        // Top to Bottom anatomical order
-        const headw = (startInches / 7) * (2/3);
-        const headh = startInches / 7;
-        
-        add("Shoulder Width", formatHeight(headw * 2.9 * factor));
-        add("Breast Height", formatHeight(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
-        add("Hip Height", formatHeight(headh*4 * factor));
-        add("Hip Width", formatHeight(headw * (2 + (key3/32 - 1) * 1.5) * factor));
-        add("Crotch Height", formatHeight(headh*3.5 * factor));
-        add("Knee Height", formatHeight(headh*1.875 * factor));
-        add("Ankle Height", formatHeight(headh/3 * factor));
-    }
-
-    function populateMetricGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift) {
-        const grid = document.getElementById('metricGrid');
+    function populateMeasurementsGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift, outputUnit) {
+        const grid = document.getElementById('measurementsGrid');
         grid.innerHTML = '';
 
         const add = (label, value) => {
@@ -928,7 +960,7 @@
             const cm = inches * 2.54;
             if (cm >= 100000) { // 1km
                 return (Math.floor(cm / 100000 * 100) / 100) + " km";
-            } else if (cm >= 100) { // 1m
+            } else if (cm >= 1000) { // 10m - only show meters above this
                 return (Math.floor(cm / 100 * 100) / 100) + " m";
             } else {
                 return (Math.floor(cm * 10) / 10) + " cm";
@@ -939,13 +971,33 @@
         const headw = (startInches / 7) * (2/3);
         const headh = startInches / 7;
         
-        add("Shoulder Width", formatMetric(headw * 2.9 * factor));
-        add("Breast Height", formatMetric(((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor));
-        add("Hip Height", formatMetric(headh*4 * factor));
-        add("Hip Width", formatMetric(headw * (2 + (key3/32 - 1) * 1.5) * factor));
-        add("Crotch Height", formatMetric(headh*3.5 * factor));
-        add("Knee Height", formatMetric(headh*1.875 * factor));
-        add("Ankle Height", formatMetric(headh/3 * factor));
+        // Calculate values in inches
+        const shoulderWidth = headw * 2.9 * factor;
+        const breastHeight = ((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor;
+        const hipHeight = headh*4 * factor;
+        const hipWidth = headw * (2 + (key3/32 - 1) * 1.5) * factor;
+        const crotchHeight = headh*3.5 * factor;
+        const kneeHeight = headh*1.875 * factor;
+        const ankleHeight = headh/3 * factor;
+
+        // Format based on output unit
+        if (outputUnit === 'metric') {
+            add("Shoulder Width", formatMetric(shoulderWidth));
+            add("Breast Height", formatMetric(breastHeight));
+            add("Hip Height", formatMetric(hipHeight));
+            add("Hip Width", formatMetric(hipWidth));
+            add("Crotch Height", formatMetric(crotchHeight));
+            add("Knee Height", formatMetric(kneeHeight));
+            add("Ankle Height", formatMetric(ankleHeight));
+        } else {
+            add("Shoulder Width", formatHeight(shoulderWidth));
+            add("Breast Height", formatHeight(breastHeight));
+            add("Hip Height", formatHeight(hipHeight));
+            add("Hip Width", formatHeight(hipWidth));
+            add("Crotch Height", formatHeight(crotchHeight));
+            add("Knee Height", formatHeight(kneeHeight));
+            add("Ankle Height", formatHeight(ankleHeight));
+        }
     }
 
     function populateFunMetrics(factor, factor68, factor120) {
@@ -993,18 +1045,23 @@
         document.getElementById('resJumpEnergy').innerHTML = formatEnergyWithEarthquake(jumpJoules);
     }
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    function switchOutputUnit(unitType, buttonElement) {
+        // Update current output unit
+        currentOutputUnit = unitType;
         
-        const tabs = document.querySelectorAll('.tab');
-        if(tabId === 'standard') tabs[0].classList.add('active');
-        if(tabId === 'metric') tabs[1].classList.add('active');
-
-        document.getElementById(tabId).classList.add('active');
+        // Update button states in the measurements tabs
+        const buttons = buttonElement.parentElement.querySelectorAll('.tab');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+        
+        // Re-populate the measurements grid with the new unit
+        updateOutputsFromStandard(unitType);
     }
 
     function switchInputUnit(unitType, buttonElement) {
+        // Update current output unit to match input unit
+        currentOutputUnit = unitType;
+        
         // Update button states
         const buttons = buttonElement.parentElement.querySelectorAll('.range-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
@@ -1014,6 +1071,9 @@
         document.getElementById('standard-inputs').classList.remove('active');
         document.getElementById('metric-inputs').classList.remove('active');
         document.getElementById(unitType + '-inputs').classList.add('active');
+        
+        // Re-render outputs with the new unit
+        updateOutputsFromStandard(unitType);
     }
 
     function setRangeMetric(rangeType, buttonElement) {
