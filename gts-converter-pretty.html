@@ -609,22 +609,32 @@
         document.getElementById('key3Metric').value = (key3 * INCHES_TO_CM).toFixed(1);
         document.getElementById('gtsliftMetric').value = (gtslift * LBS_TO_KG).toFixed(1);
 
-        // Target size
+        // Target size - match behavior of before size (only use meters above 1000cm)
         const targetInches = (gtsmiles * 63360) + (gtsfeet * 12) + gtsinches;
         const targetCm = targetInches * INCHES_TO_CM;
-        const targetMeters = targetCm / 100;
-        if (targetMeters >= 1000) {
-            document.getElementById('gtskm').value = Math.floor(targetMeters / 1000);
-            document.getElementById('gtsmeters').value = (targetMeters % 1000).toFixed(2);
-        } else {
+        
+        if (targetCm >= 100000) {
+            // Above 100000cm = 1km: use km field
+            document.getElementById('gtskm').value = Math.floor(targetCm / 100000);
+            const remainingCm = targetCm % 100000;
+            document.getElementById('gtsmeters').value = Math.floor(remainingCm / 100);
+            document.getElementById('gtscm').value = Math.floor(remainingCm % 100);
+        } else if (targetCm >= 1000) {
+            // Above 1000cm (10m): use m field
             document.getElementById('gtskm').value = 0;
-            document.getElementById('gtsmeters').value = targetMeters.toFixed(2);
+            document.getElementById('gtsmeters').value = Math.floor(targetCm / 100);
+            document.getElementById('gtscm').value = Math.floor(targetCm % 100);
+        } else {
+            // Below 1000cm: all in cm field
+            document.getElementById('gtskm').value = 0;
+            document.getElementById('gtsmeters').value = 0;
+            document.getElementById('gtscm').value = Math.floor(targetCm);
         }
-        document.getElementById('gtscm').value = Math.floor(targetCm % 100);
 
         // Update metric slider to match
         const heightSliderMetric = document.getElementById('heightSliderMetric');
         if (heightSliderMetric) {
+            const targetMeters = targetCm / 100;
             heightSliderMetric.value = targetMeters.toFixed(2);
         }
 
@@ -1140,37 +1150,60 @@
     }
 
     function setRangeMetric(rangeType, buttonElement) {
-        // Metric version of setRange - placeholder for now
-        const RANGES_METRIC = {
-            mini: { min: 2.3, max: 7.6, default: 4.6 },
-            gts: { min: 6.1, max: 61, default: 15.24 },
-            mega: { min: 61, max: 762, default: 152.4 },
-            giga: { min: 152.4, max: 160934, default: 1524 }
-        };
+        currentRange = rangeType;
         
-        const range = RANGES_METRIC[rangeType];
-        const slider = document.getElementById('heightSliderMetric');
+        // Update BOTH sliders
+        const RANGES_METRIC = {
+            mini: { min: 2.286, max: 7.62, default: 5 },        // 500cm = 5m
+            gts: { min: 6.096, max: 60.96, default: 15 },       // 15m
+            mega: { min: 60.96, max: 762, default: 150 },       // 150m
+            giga: { min: 152.4, max: 160934.4, default: 1500000 } // 1500km = 1,500,000m
+        };
+        const rangeMetric = RANGES_METRIC[rangeType];
+        const sliderMetric = document.getElementById('heightSliderMetric');
+        sliderMetric.min = rangeMetric.min;
+        sliderMetric.max = rangeMetric.max;
+        sliderMetric.value = rangeMetric.default;
+        
+        const range = RANGES[rangeType];
+        const slider = document.getElementById('heightSlider');
         slider.min = range.min;
         slider.max = range.max;
         slider.value = range.default;
         
-        // Update active button
-        const buttons = buttonElement.parentElement.querySelectorAll('.range-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        buttonElement.classList.add('active');
-        
-        // Update target size (convert meters to km/m/cm)
-        const meters = parseFloat(slider.value);
-        if (meters >= 1000) {
-            document.getElementById('gtskm').value = Math.floor(meters / 1000);
-            document.getElementById('gtsmeters').value = (meters % 1000).toFixed(2);
-        } else {
-            document.getElementById('gtskm').value = 0;
-            document.getElementById('gtsmeters').value = meters.toFixed(2);
+        // Sync button states on BOTH sides
+        const metricButtons = document.querySelector('#metric-inputs .range-buttons');
+        if (metricButtons) {
+            metricButtons.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
         }
-        document.getElementById('gtscm').value = 0;
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+        }
         
-        updateFromMetric();
+        const standardButtons = document.querySelector('#standard-inputs .range-buttons');
+        if (standardButtons) {
+            const standardBtns = standardButtons.querySelectorAll('.range-btn');
+            standardBtns.forEach(btn => btn.classList.remove('active'));
+            standardBtns.forEach(btn => {
+                if (btn.textContent.trim() === buttonElement.textContent.trim()) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // Update standard target size inputs (this is the source of truth)
+        const feet = parseFloat(slider.value);
+        if (feet >= 5280) {
+            document.getElementById('gtsmiles').value = Math.floor(feet / 5280);
+            document.getElementById('gtsfeet').value = Math.floor(feet % 5280);
+        } else {
+            document.getElementById('gtsmiles').value = 0;
+            document.getElementById('gtsfeet').value = Math.floor(feet);
+        }
+        document.getElementById('gtsinches').value = 0;
+        
+        // This will sync metric inputs and recalc everything
+        updateFromStandard();
     }
 
     // Event Listeners - Standard inputs
@@ -1206,18 +1239,46 @@
     function setRange(rangeType, buttonElement) {
         currentRange = rangeType;
         const range = RANGES[rangeType];
+        
+        // Update BOTH sliders
         const slider = document.getElementById('heightSlider');
         slider.min = range.min;
         slider.max = range.max;
         slider.value = range.default;
         
-        // Update active button
-        document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+        const sliderMetric = document.getElementById('heightSliderMetric');
+        const RANGES_METRIC = {
+            mini: { min: 2.286, max: 7.62, default: 5 },        // 500cm = 5m
+            gts: { min: 6.096, max: 60.96, default: 15 },       // 15m
+            mega: { min: 60.96, max: 762, default: 150 },       // 150m
+            giga: { min: 152.4, max: 160934.4, default: 1500000 } // 1500km = 1,500,000m
+        };
+        const rangeMetric = RANGES_METRIC[rangeType];
+        sliderMetric.min = rangeMetric.min;
+        sliderMetric.max = rangeMetric.max;
+        sliderMetric.value = rangeMetric.default;
+        
+        // Sync button states on BOTH sides
+        const standardButtons = document.querySelector('#standard-inputs .range-buttons');
+        if (standardButtons) {
+            standardButtons.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+        }
         if (buttonElement) {
             buttonElement.classList.add('active');
         }
         
-        // Update target size
+        const metricButtons = document.querySelector('#metric-inputs .range-buttons');
+        if (metricButtons) {
+            const metricBtns = metricButtons.querySelectorAll('.range-btn');
+            metricBtns.forEach(btn => btn.classList.remove('active'));
+            metricBtns.forEach(btn => {
+                if (btn.textContent.trim() === buttonElement.textContent.trim()) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // Update standard target size inputs
         const feet = parseFloat(slider.value);
         if (feet >= 5280) {
             document.getElementById('gtsmiles').value = Math.floor(feet / 5280);
@@ -1226,6 +1287,9 @@
             document.getElementById('gtsmiles').value = 0;
             document.getElementById('gtsfeet').value = Math.floor(feet);
         }
+        document.getElementById('gtsinches').value = 0;
+        
+        // This will sync metric inputs and recalc everything
         updateFromStandard();
     }
 
@@ -1248,14 +1312,26 @@
     const sliderMetric = document.getElementById('heightSliderMetric');
     sliderMetric.addEventListener('input', (e) => {
         const meters = parseFloat(e.target.value);
-        if (meters >= 1000) {
-            document.getElementById('gtskm').value = Math.floor(meters / 1000);
-            document.getElementById('gtsmeters').value = (meters % 1000).toFixed(2);
-        } else {
+        const totalCm = meters * 100;
+        
+        // Use same subdivision logic as before size
+        if (totalCm >= 100000) {
+            // Above 100000cm = 1km
+            document.getElementById('gtskm').value = Math.floor(totalCm / 100000);
+            const remainingCm = totalCm % 100000;
+            document.getElementById('gtsmeters').value = Math.floor(remainingCm / 100);
+            document.getElementById('gtscm').value = Math.floor(remainingCm % 100);
+        } else if (totalCm >= 1000) {
+            // Above 1000cm (10m): use m field
             document.getElementById('gtskm').value = 0;
-            document.getElementById('gtsmeters').value = meters.toFixed(2);
+            document.getElementById('gtsmeters').value = Math.floor(totalCm / 100);
+            document.getElementById('gtscm').value = Math.floor(totalCm % 100);
+        } else {
+            // Below 1000cm: all in cm field
+            document.getElementById('gtskm').value = 0;
+            document.getElementById('gtsmeters').value = 0;
+            document.getElementById('gtscm').value = Math.floor(totalCm);
         }
-        document.getElementById('gtscm').value = 0;
         updateFromMetric();
     });
 
