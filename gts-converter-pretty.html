@@ -226,6 +226,10 @@
     <div class="container">
         <!-- Left Column: Inputs -->
         <div class="left-col">
+            <div class="range-buttons" style="margin-bottom: 15px;">
+                <button class="range-btn active">Standard</button>
+                <button class="range-btn">Metric</button>
+            </div>
             <div class="card">
                 <h2>Before Size</h2>
                 <div class="row">
@@ -313,10 +317,10 @@
                     <label>Quick Scale Slider (approx)</label>
                     <input type="range" id="heightSlider" min="7.5" max="500" value="50" step="0.5">
                     <div class="range-buttons">
-                        <button class="range-btn" onclick="setRange('mini')">MiniGTS</button>
-                        <button class="range-btn active" onclick="setRange('gts')">GTS</button>
-                        <button class="range-btn" onclick="setRange('mega')">Mega</button>
-                        <button class="range-btn" onclick="setRange('giga')">Giga</button>
+                        <button class="range-btn" onclick="setRange('mini', this)">MiniGTS</button>
+                        <button class="range-btn active" onclick="setRange('gts', this)">GTS</button>
+                        <button class="range-btn" onclick="setRange('mega', this)">Mega</button>
+                        <button class="range-btn" onclick="setRange('giga', this)">Giga</button>
                     </div>
                 </div>
             </div>
@@ -353,7 +357,6 @@
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('standard')">Standard</div>
                     <div class="tab" onclick="switchTab('metric')">Metric</div>
-                    <div class="tab" onclick="switchTab('fun')">Fun</div>
                 </div>
 
                 <div id="standard" class="tab-content active">
@@ -363,11 +366,6 @@
                 </div>
                 <div id="metric" class="tab-content">
                     <div class="results-grid" id="metricGrid" style="grid-template-columns: 1fr;">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-                <div id="fun" class="tab-content">
-                    <div class="results-grid" id="funGrid" style="grid-template-columns: 1fr;">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -401,6 +399,18 @@
                     <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
                         <div class="result-label">Run Speed</div>
                         <div class="result-value" id="resRunSpeed">--</div>
+                    </div>
+                    <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
+                        <div class="result-label">Step Energy</div>
+                        <div class="result-value" id="resStepEnergy">--</div>
+                    </div>
+                    <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
+                        <div class="result-label">Stomp Energy</div>
+                        <div class="result-value" id="resStompEnergy">--</div>
+                    </div>
+                    <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
+                        <div class="result-label">Jump Energy</div>
+                        <div class="result-value" id="resJumpEnergy">--</div>
                     </div>
                 </div>
             </div>
@@ -540,8 +550,8 @@
             console.log('Standard grid populated');
             populateMetricGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift);
             console.log('Metric grid populated');
-            populateFunGrid(factor, factor68, factor120);
-            console.log('Fun grid populated');
+            populateFunMetrics(factor, factor68, factor120);
+            console.log('Fun metrics populated');
         } catch (error) {
             console.error('Error in update function:', error);
         }
@@ -721,53 +731,58 @@
         add("Ankle Height", formatMetric(headh/3 * factor));
     }
 
-    function populateFunGrid(factor, factor68, factor120) {
-        const grid = document.getElementById('funGrid');
-        grid.innerHTML = '';
-
-        const add = (label, value) => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
-            grid.appendChild(div);
+    function populateFunMetrics(factor, factor68, factor120) {
+        // Format large numbers with appropriate suffix (K, M, B, T)
+        const formatEnergy = (joules) => {
+            if (joules >= 1e12) {
+                return (joules / 1e12).toFixed(2) + "T";
+            } else if (joules >= 1e9) {
+                return (joules / 1e9).toFixed(2) + "B";
+            } else if (joules >= 1e6) {
+                return (joules / 1e6).toFixed(2) + "M";
+            } else if (joules >= 1e3) {
+                return (joules / 1e3).toFixed(2) + "K";
+            } else {
+                return joules.toFixed(0);
+            }
         };
 
-        const addCommas = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        // Calculate earthquake magnitude from joules
+        // Using simplified Richter scale: Magnitude ≈ (2/3) * log10(Joules) - 2.9
+        const calculateEarthquakeMagnitude = (joules) => {
+            if (joules <= 0) return 0;
+            const magnitude = (2/3) * Math.log10(joules) - 2.9;
+            return Math.max(0, magnitude);
+        };
 
-        // Energy
+        // Format energy with optional earthquake magnitude (only if >= 0.1)
+        const formatEnergyWithEarthquake = (joules) => {
+            const energyStr = formatEnergy(joules) + " Joules";
+            const magnitude = calculateEarthquakeMagnitude(joules);
+            if (magnitude >= 0.1) {
+                return energyStr + "<br>" + magnitude.toFixed(1) + " earthquake";
+            }
+            return energyStr;
+        };
+
+        // Energy calculations
         const stepJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(9.81)*(0.07*factor);
         const stompJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(11.5)*(0.5*factor);
         const jumpJoules = (factor120*120*Math.pow(factor,3)*0.4536)*(9.81)*(0.43*factor);
 
-        add("Step Energy", addCommas(Math.floor(stepJoules)) + " Joules");
-        add("Stomp Energy", addCommas(Math.floor(stompJoules)) + " Joules");
-        add("Jump Energy", addCommas(Math.floor(jumpJoules)) + " Joules");
-
-        // Earthquake Comparison
-        const getQuakeMag = (joules) => {
-            if (joules > 7.1e17) return "Magnitude 9+";
-            if (joules > 2.2e16) return "Magnitude 8+";
-            if (joules > 7.1e14) return "Magnitude 7+";
-            if (joules > 2.2e13) return "Magnitude 6+";
-            if (joules > 7.1e11) return "Magnitude 5+";
-            if (joules > 2.2e10) return "Magnitude 4+";
-            return "Minor Tremor";
-        };
-
-        add("Stomp Equivalent", getQuakeMag(stompJoules));
-        add("Jump Equivalent", getQuakeMag(jumpJoules));
+        // Format with earthquake magnitude (only if >= 0.1)
+        document.getElementById('resStepEnergy').innerHTML = formatEnergyWithEarthquake(stepJoules);
+        document.getElementById('resStompEnergy').innerHTML = formatEnergyWithEarthquake(stompJoules);
+        document.getElementById('resJumpEnergy').innerHTML = formatEnergyWithEarthquake(jumpJoules);
     }
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
-        // Find the tab element that was clicked (this is a bit hacky without event target, but works if we pass 'this' or just select by text)
-        // Actually, let's just select by index or text.
         const tabs = document.querySelectorAll('.tab');
         if(tabId === 'standard') tabs[0].classList.add('active');
         if(tabId === 'metric') tabs[1].classList.add('active');
-        if(tabId === 'fun') tabs[2].classList.add('active');
 
         document.getElementById(tabId).classList.add('active');
     }
@@ -789,7 +804,7 @@
 
     let currentRange = 'gts';
 
-    function setRange(rangeType) {
+    function setRange(rangeType, buttonElement) {
         currentRange = rangeType;
         const range = RANGES[rangeType];
         const slider = document.getElementById('heightSlider');
@@ -799,7 +814,9 @@
         
         // Update active button
         document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+        }
         
         // Update target size
         const feet = parseFloat(slider.value);
