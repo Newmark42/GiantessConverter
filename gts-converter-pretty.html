@@ -527,6 +527,72 @@
             </div>
         </div>
         
+        <!-- Body Part Sections - Static for now -->
+        <div style="grid-column: 1 / -1;">
+            <div class="card">
+                <h3>Body Part Details</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    
+                    <!-- Key Heights Section -->
+                    <div class="body-section" id="keyHeightsSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Key Heights</h4>
+                        <div id="keyHeightsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Head Section -->
+                    <div class="body-section" id="headSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Head</h4>
+                        <div id="headContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Breasts Section -->
+                    <div class="body-section" id="breastsSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Breasts</h4>
+                        <div id="breastsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Milk Section -->
+                    <div class="body-section" id="milkSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Milk</h4>
+                        <div id="milkContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Crotch Section -->
+                    <div class="body-section" id="crotchSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Crotch</h4>
+                        <div id="crotchContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Arms/Legs Section -->
+                    <div class="body-section" id="armsLegsSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Arms & Legs</h4>
+                        <div id="armsLegsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Movement Section -->
+                    <div class="body-section" id="movementSection">
+                        <h4 style="color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;">Movement</h4>
+                        <div id="movementContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
         <!-- Debug: All Calculations JSON -->
         <div style="grid-column: 1 / -1;">
             <div class="card">
@@ -1030,6 +1096,268 @@
         renderKeyStats(measurements, outputUnit);
         renderMeasurementsGrid(measurements, outputUnit);
         renderEnergyStats(measurements);
+        
+        // Render all body part sections
+        renderAllBodyPartSections(measurements, outputUnit);
+    }
+    
+    function renderAllBodyPartSections(measurements, outputUnit) {
+        renderKeyHeightsSection(measurements, outputUnit);
+        renderHeadSection(measurements, outputUnit);
+        renderBreastsSection(measurements, outputUnit);
+        renderMilkSection(measurements, outputUnit);
+        renderCrotchSection(measurements, outputUnit);
+        renderArmsLegsSection(measurements, outputUnit);
+        renderMovementSection(measurements, outputUnit);
+    }
+    
+    function renderKeyHeightsSection(measurements, outputUnit) {
+        const container = document.getElementById('keyHeightsContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Ankle:</div>
+                <div>${formatValue(measurements.keyHeights.ankleHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Knee:</div>
+                <div>${formatValue(measurements.keyHeights.kneeHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Crotch:</div>
+                <div>${formatValue(measurements.keyHeights.crotchHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Hip:</div>
+                <div>${formatValue(measurements.keyHeights.hipHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Breast:</div>
+                <div>${formatValue(measurements.keyHeights.breastHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Neck:</div>
+                <div>${formatValue(measurements.keyHeights.neckHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Chin:</div>
+                <div>${formatValue(measurements.keyHeights.chinHeightInches)}</div>
+            </div>
+        `;
+    }
+    
+    function renderHeadSection(measurements, outputUnit) {
+        const container = document.getElementById('headContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Hair diameter:</div>
+                <div>${formatValue(measurements.head.hairDiameterInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Mouth opening:</div>
+                <div>${formatValue(measurements.head.mouthOpeningInches)} tall</div>
+                
+                <div style="text-align: right; font-weight: bold;">Smile width:</div>
+                <div>${formatValue(measurements.head.smileWidthInches)} wide</div>
+                
+                <div style="text-align: right; font-weight: bold;">Tongue length:</div>
+                <div>${formatValue(measurements.head.tongueLengthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Tongue stick-out:</div>
+                <div>${formatValue(measurements.head.tongueStickOutInches)}</div>
+            </div>
+        `;
+    }
+    
+    function renderBreastsSection(measurements, outputUnit) {
+        const container = document.getElementById('breastsContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        const formatWeight = (lbs) => outputUnit === 'metric' ? formatWeightMetric(lbs) : formatWeightImperial(lbs);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        const formatWeightMetric = (lbs) => {
+            const kg = lbs * LBS_TO_KG;
+            if (kg >= 1000) return (Math.floor(kg / 1000 * 100) / 100) + " tonnes";
+            else return Math.floor(kg) + " kg";
+        };
+        
+        const formatWeightImperial = (lbs) => {
+            if (lbs >= 2000) {
+                const tons = Math.floor(lbs / 2000);
+                const remLbs = Math.floor(lbs % 2000);
+                return `${addCommas(tons)} tons, ${remLbs} lbs`;
+            }
+            return `${addCommas(Math.floor(lbs))} lbs`;
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Height:</div>
+                <div>${formatValue(measurements.breasts.heightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Width:</div>
+                <div>${formatValue(measurements.breasts.widthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Depth:</div>
+                <div>${formatValue(measurements.breasts.depthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Weight each:</div>
+                <div>${formatWeight(measurements.breasts.weightLbs)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Areola diameter:</div>
+                <div>${formatValue(measurements.breasts.areolaeDiameterInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Nipple diameter:</div>
+                <div>${formatValue(measurements.breasts.nippleDiameterInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Nipple erect:</div>
+                <div>${formatValue(measurements.breasts.nippleErectLengthInches)}</div>
+                
+                <div style="text-align: right; font-style: italic; color: #666;">Height to breasts:</div>
+                <div style="color: #666; font-style: italic;">${formatValue(measurements.keyHeights.breastHeightInches)}</div>
+            </div>
+        `;
+    }
+    
+    function renderMilkSection(measurements, outputUnit) {
+        const container = document.getElementById('milkContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        const formatVolume = (gallons) => {
+            if (outputUnit === 'metric') {
+                const liters = gallons * 3.785;
+                return addCommas(Math.floor(liters * 100) / 100) + " liters";
+            } else {
+                return addCommas(Math.floor(gallons * 100) / 100) + " gallons";
+            }
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Stream diameter:</div>
+                <div>${formatValue(measurements.breasts.milkDuctDiameterInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Drop volume:</div>
+                <div>${formatVolume(measurements.breasts.milkDropGallons)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Drop weight:</div>
+                <div>${Math.floor(measurements.breasts.milkDropLbs)} lbs</div>
+            </div>
+        `;
+    }
+    
+    function renderCrotchSection(measurements, outputUnit) {
+        const container = document.getElementById('crotchContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Vagina depth:</div>
+                <div>${formatValue(measurements.crotch.vaginaDepthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Labia height:</div>
+                <div>${formatValue(measurements.crotch.labiaHeightInches)}</div>
+                
+                <div style="text-align: right; font-style: italic; color: #666;">Height to crotch:</div>
+                <div style="color: #666; font-style: italic;">${formatValue(measurements.keyHeights.crotchHeightInches)}</div>
+            </div>
+        `;
+    }
+    
+    function renderArmsLegsSection(measurements, outputUnit) {
+        const container = document.getElementById('armsLegsContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Arm length:</div>
+                <div>${formatValue(measurements.armsLegs.armLengthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Palm width:</div>
+                <div>${formatValue(measurements.armsLegs.palmWidthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Finger length:</div>
+                <div>${formatValue(measurements.armsLegs.fingerLengthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Finger thickness:</div>
+                <div>${formatValue(measurements.armsLegs.fingerThicknessInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Leg length:</div>
+                <div>${formatValue(measurements.armsLegs.legLengthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Foot width:</div>
+                <div>${formatValue(measurements.armsLegs.footWidthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Foot length:</div>
+                <div>${formatValue(measurements.armsLegs.footLengthInches)}</div>
+            </div>
+        `;
+    }
+    
+    function renderMovementSection(measurements, outputUnit) {
+        const container = document.getElementById('movementContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        const formatSpeed = (mph) => outputUnit === 'metric' ? (mph * 1.60934).toFixed(1) + " km/h" : mph.toFixed(1) + " mph";
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Walking stride:</div>
+                <div>${formatValue(measurements.movement.walkStrideInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Running stride:</div>
+                <div>${formatValue(measurements.movement.runStrideInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Walking speed:</div>
+                <div>${formatSpeed(measurements.movement.walkSpeedMph)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Running speed:</div>
+                <div>${formatSpeed(measurements.movement.runSpeedMph)}</div>
+            </div>
+        `;
     }
     
     function renderKeyStats(measurements, outputUnit) {
