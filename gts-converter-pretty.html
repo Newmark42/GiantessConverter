@@ -276,12 +276,13 @@
                                 <option value="1.6">B</option>
                                 <option value="2.35" selected>C</option>
                                 <option value="3.05">D</option>
-                                <option value="3.75">E</option>
-                                <option value="4.4">F</option>
-                                <option value="5.05">G</option>
-                                <option value="5.65">H</option>
-                                <option value="6.25">I</option>
-                                <option value="6.8">J</option>
+                                <option value="3.75">DD</option>
+                                <option value="4.4">DDD (UK E)</option>
+                                <option value="5.05">G (UK F)</option>
+                                <option value="5.65">H (UK FF)</option>
+                                <option value="6.25">I (UK G)</option>
+                                <option value="6.8">J (UK GG)</option>
+                                <option value="7.4">K (UK H)</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -374,12 +375,13 @@
                                 <option value="1.6">B</option>
                                 <option value="2.35" selected>C</option>
                                 <option value="3.05">D</option>
-                                <option value="3.75">E</option>
-                                <option value="4.4">F</option>
-                                <option value="5.05">G</option>
-                                <option value="5.65">H</option>
-                                <option value="6.25">I</option>
-                                <option value="6.8">J</option>
+                                <option value="3.75">E (UK DD)</option>
+                                <option value="4.4">F (UK E)</option>
+                                <option value="5.05">G (UK F)</option>
+                                <option value="5.65">H (UK FF)</option>
+                                <option value="6.25">J (UK G)</option>
+                                <option value="6.8">K (UK GG)</option>
+                                <option value="7.4">L (UK H)</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -522,6 +524,14 @@
                         <div class="result-value" id="resJumpEnergy">--</div>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Debug: All Calculations JSON -->
+        <div style="grid-column: 1 / -1;">
+            <div class="card">
+                <h3>All Calculations (Debug)</h3>
+                <textarea id="debugCalcs" style="width: 100%; height: 400px; font-family: monospace; font-size: 11px;"></textarea>
             </div>
         </div>
     </div>
@@ -848,7 +858,13 @@
                 document.getElementById('resRunSpeed').innerText = runSpeedMph + " mph";
             }
 
-            // 5. Populate Measurements Grid
+            // 5. Calculate ALL measurements
+            const allCalcs = calculateAllMeasurements(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, wmnweight);
+            
+            // Debug: Display all calculations as JSON
+            document.getElementById('debugCalcs').value = JSON.stringify(allCalcs, null, 2);
+            
+            // 6. Populate Measurements Grid
             console.log('About to populate measurements grid...');
             populateMeasurementsGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, outputUnit);
             console.log('Measurements grid populated');
@@ -1015,6 +1031,90 @@
         } else {
             return Math.round(cm) + "cm";
         }
+    }
+
+    function calculateAllMeasurements(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, wmnweight) {
+        const headw = (startHeightInches / 7) * (2/3);
+        const headh = startHeightInches / 7;
+        const breast = cup;
+        const cupcomp = (((cup + 1) / cup) - 0.1);
+        const shoecomp = (((shoe * shoe / 8) - 8) / 250);
+        
+        // Energy calculations
+        const stepJoules = (factor120 * 120 * Math.pow(factor, 3) * 0.4536) / 2 * (9.81) * (0.07 * factor);
+        const stompJoules = (factor120 * 120 * Math.pow(factor, 3) * 0.4536) / 2 * (11.5) * (0.5 * factor);
+        const jumpJoules = (factor120 * 120 * Math.pow(factor, 3) * 0.4536) * (9.81) * (0.43 * factor);
+        
+        return {
+            overall: {
+                heightInches: targetHeightInches,
+                weightLbs: factor120 * 120 * Math.pow(factor, 3),
+                shoulderWidthInches: headw * 2.9 * factor,
+                hipWidthInches: headw * (2 + (key3/32 - 1) * 1.5) * factor,
+                liftCapacityLbs: gtslift * Math.pow(factor, 3)
+            },
+            measurements: {
+                bustInches: key1 * factor,
+                waistInches: key2 * factor,
+                hipsInches: key3 * factor
+            },
+            keyHeights: {
+                ankleHeightInches: headh / 3 * factor,
+                kneeHeightInches: headh * 1.875 * factor,
+                crotchHeightInches: headh * 3.5 * factor,
+                hipHeightInches: headh * 4 * factor,
+                breastHeightInches: ((headh * 5) - (((breast + cupcomp * 1.5) - 3.65)) * 0.8) * factor,
+                neckHeightInches: headh * 5.75 * factor,
+                chinHeightInches: headh * 6 * factor
+            },
+            head: {
+                hairDiameterInches: 0.002 * factor,
+                mouthOpeningInches: factor68 * 2.2 * factor,
+                smileWidthInches: factor68 * 2.6 * factor,
+                tongueLengthInches: factor68 * 3.9 * factor,
+                tongueStickOutInches: factor68 * 1.5 * factor
+            },
+            breasts: {
+                heightInches: (breast + cupcomp) * 1.35 * factor,
+                widthInches: (breast + cupcomp) * 1.15 * factor,
+                depthInches: breast * factor,
+                weightLbs: cup * Math.pow(factor, 3),
+                areolaeDiameterInches: ((breast + cupcomp * 1.337) * factor) * cupcomp / 4.1,
+                nippleDiameterInches: ((breast + cupcomp * 1.337) * factor) * cupcomp / 14.8,
+                nippleErectLengthInches: ((breast + cupcomp * 1.337) * factor) * cupcomp / 8.2,
+                milkDuctDiameterInches: factor * (0.019 + breast / 2000),
+                milkDropGallons: (((4/3 * 3.14 * Math.pow((((breast + cupcomp * 1.337) * factor) * cupcomp / 355.2), 3)) * 3)),
+                milkDropLbs: ((((4/3 * 3.14 * Math.pow((((breast + cupcomp * 1.337) * factor) * cupcomp / 355.2), 3)) * 3)) * 8.32)
+            },
+            crotch: {
+                vaginaDepthInches: factor68 * 6 * factor,
+                labiaHeightInches: factor68 * 1.75 * factor
+            },
+            armsLegs: {
+                armLengthInches: factor68 * 22 * factor,
+                palmWidthInches: startHeightInches / 9.2 * 0.525 * factor,
+                fingerLengthInches: startHeightInches / 9.2 * 0.475 * factor,
+                fingerThicknessInches: factor68 * 0.68 * factor,
+                legLengthInches: headh * 3.5 * factor,
+                footWidthInches: shoe * (0.334 + shoecomp) * factor,
+                footLengthInches: shoe * factor
+            },
+            movement: {
+                walkStrideInches: factor68 * 26.5 * factor,
+                runStrideInches: factor68 * 66 * factor,
+                walkSpeedMph: (factor68 * 26.5 * factor * 7200 / 63360),
+                runSpeedMph: (factor68 * 66 * factor * 9600 / 63360)
+            },
+            energy: {
+                stepJoules: stepJoules,
+                stompJoules: stompJoules,
+                jumpJoules: jumpJoules
+            },
+            reference: {
+                manHeightToHerInches: 72 / factor,
+                manWeightToHerLbs: 180 / Math.pow(factor, 3)
+            }
+        };
     }
 
     function populateMeasurementsGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift, outputUnit) {
