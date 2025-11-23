@@ -767,109 +767,14 @@
                 }
             };
 
-            // Total Height
-            if (outputUnit === 'metric') {
-                document.getElementById('resHeight').innerText = formatMetricValue(targetHeightInches);
-            } else {
-                document.getElementById('resHeight').innerText = formatHeight(targetHeightInches);
-            }
-            
-            // Weight
-            const totalWeight = factor120 * 120 * Math.pow(factor, 3);
-            if (outputUnit === 'metric') {
-                document.getElementById('resWeight').innerText = formatWeightMetric(totalWeight);
-            } else {
-                document.getElementById('resWeight').innerText = formatWeight(totalWeight);
-            }
-
-            // Measurements (B/W/H)
-            const bustSize = key1 * factor;
-            const waistSize = key2 * factor;
-            const hipSize = key3 * factor;
-            
-            if (outputUnit === 'metric') {
-                const bustCm = bustSize * INCHES_TO_CM;
-                const waistCm = waistSize * INCHES_TO_CM;
-                const hipCm = hipSize * INCHES_TO_CM;
-                
-                const formatMeasurement = (cm) => {
-                    if (cm >= 100000) return (cm / 100000).toFixed(1);
-                    if (cm >= 1000) return (cm / 100).toFixed(1);
-                    return cm.toFixed(1);
-                };
-                
-                const getUnitMeasurement = (cm) => {
-                    if (cm >= 100000) return 'km';
-                    if (cm >= 1000) return 'm';
-                    return 'cm';
-                };
-                
-                const bust = formatMeasurement(bustCm);
-                const waist = formatMeasurement(waistCm);
-                const hip = formatMeasurement(hipCm);
-                const unit = getUnitMeasurement(bustCm);
-                
-                document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
-            } else {
-                // Smart unit selection for measurements (standard)
-                const formatSimple = (inches) => {
-                    if (inches >= 63360) { // Miles
-                        return (inches / 63360).toFixed(1);
-                    } else if (inches >= 72) { // Feet (6ft threshold)
-                        return (inches / 12).toFixed(1);
-                    } else { // Inches
-                        return inches.toFixed(1);
-                    }
-                };
-                
-                const getUnit = (inches) => {
-                    if (inches >= 63360) return 'mi';
-                    if (inches >= 72) return 'ft'; // 6ft threshold
-                    return 'in';
-                };
-                
-                const bust = formatSimple(bustSize);
-                const waist = formatSimple(waistSize);
-                const hip = formatSimple(hipSize);
-                const unit = getUnit(bustSize);
-                
-                document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
-            }
-
-            // Foot Length
-            const footLen = shoe * factor;
-            if (outputUnit === 'metric') {
-                document.getElementById('resFoot').innerText = formatMetricValue(footLen);
-            } else {
-                document.getElementById('resFoot').innerText = formatHeight(footLen);
-            }
-
-            // Walk/Run Speed (convert mph to km/h for metric)
-            const walkSpeedMph = (Math.floor((factor68*26.5*factor*7200/63360)*10)/10);
-            const runSpeedMph = (Math.floor((factor68*66*factor*9600/63360)*10)/10);
-            
-            if (outputUnit === 'metric') {
-                const walkSpeedKmh = Math.floor(walkSpeedMph * 1.60934 * 10) / 10;
-                const runSpeedKmh = Math.floor(runSpeedMph * 1.60934 * 10) / 10;
-                document.getElementById('resWalkSpeed').innerText = walkSpeedKmh + " km/h";
-                document.getElementById('resRunSpeed').innerText = runSpeedKmh + " km/h";
-            } else {
-                document.getElementById('resWalkSpeed').innerText = walkSpeedMph + " mph";
-                document.getElementById('resRunSpeed').innerText = runSpeedMph + " mph";
-            }
-
-            // 5. Calculate ALL measurements
+            // 5. Calculate ALL measurements (pure calculation function)
             const allCalcs = calculateAllMeasurements(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, wmnweight);
             
             // Debug: Display all calculations as JSON
             document.getElementById('debugCalcs').value = JSON.stringify(allCalcs, null, 2);
             
-            // 6. Populate Measurements Grid
-            console.log('About to populate measurements grid...');
-            populateMeasurementsGrid(factor, factor68, factor120, startHeightInches, targetHeightInches, cup, shoe, key1, key2, key3, gtslift, outputUnit);
-            console.log('Measurements grid populated');
-            populateFunMetrics(factor, factor68, factor120);
-            console.log('Fun metrics populated');
+            // 6. Use new rendering functions that read from JSON
+            renderMeasurementsFromJSON(allCalcs, outputUnit);
         } catch (error) {
             console.error('Error in update function:', error);
         }
@@ -1117,87 +1022,162 @@
         };
     }
 
-    function populateMeasurementsGrid(factor, factor68, factor120, startInches, targetInches, cup, shoe, key1, key2, key3, gtslift, outputUnit) {
+    // ========== RENDERING FUNCTIONS ==========
+    // These functions only read from the measurements JSON and render to HTML
+    
+    function renderMeasurementsFromJSON(measurements, outputUnit = 'standard') {
+        // Main render orchestrator
+        renderKeyStats(measurements, outputUnit);
+        renderMeasurementsGrid(measurements, outputUnit);
+        renderEnergyStats(measurements);
+    }
+    
+    function renderKeyStats(measurements, outputUnit) {
+        // Helper functions for formatting
+        const formatHeightDisplay = (inches) => {
+            if (outputUnit === 'metric') {
+                const cm = inches * INCHES_TO_CM;
+                if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+                else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+                else return (Math.floor(cm * 10) / 10) + " cm";
+            } else {
+                return formatHeight(inches);
+            }
+        };
+        
+        const formatWeightDisplay = (lbs) => {
+            if (outputUnit === 'metric') {
+                const kg = lbs * LBS_TO_KG;
+                if (kg >= 1000000) return (Math.floor(kg / 1000000 * 100) / 100) + " million kg";
+                else if (kg >= 1000) return (Math.floor(kg / 1000 * 100) / 100) + " tonnes";
+                else return Math.floor(kg) + " kg";
+            } else {
+                return formatWeight(lbs);
+            }
+        };
+        
+        // Render total height
+        document.getElementById('resHeight').innerText = formatHeightDisplay(measurements.overall.heightInches);
+        
+        // Render weight
+        document.getElementById('resWeight').innerText = formatWeightDisplay(measurements.overall.weightLbs);
+        
+        // Render measurements (B/W/H)
+        if (outputUnit === 'metric') {
+            const bustCm = measurements.measurements.bustInches * INCHES_TO_CM;
+            const waistCm = measurements.measurements.waistInches * INCHES_TO_CM;
+            const hipCm = measurements.measurements.hipsInches * INCHES_TO_CM;
+            
+            const formatMeasurement = (cm) => {
+                if (cm >= 100000) return (cm / 100000).toFixed(1);
+                if (cm >= 1000) return (cm / 100).toFixed(1);
+                return cm.toFixed(1);
+            };
+            
+            const getUnitMeasurement = (cm) => {
+                if (cm >= 100000) return 'km';
+                if (cm >= 1000) return 'm';
+                return 'cm';
+            };
+            
+            const bust = formatMeasurement(bustCm);
+            const waist = formatMeasurement(waistCm);
+            const hip = formatMeasurement(hipCm);
+            const unit = getUnitMeasurement(bustCm);
+            
+            document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
+        } else {
+            const formatSimple = (inches) => {
+                if (inches >= 63360) return (inches / 63360).toFixed(1);
+                else if (inches >= 72) return (inches / 12).toFixed(1);
+                else return inches.toFixed(1);
+            };
+            
+            const getUnit = (inches) => {
+                if (inches >= 63360) return 'mi';
+                if (inches >= 72) return 'ft';
+                return 'in';
+            };
+            
+            const bust = formatSimple(measurements.measurements.bustInches);
+            const waist = formatSimple(measurements.measurements.waistInches);
+            const hip = formatSimple(measurements.measurements.hipsInches);
+            const unit = getUnit(measurements.measurements.bustInches);
+            
+            document.getElementById('resMeasurements').innerText = `${bust} - ${waist} - ${hip} ${unit}`;
+        }
+        
+        // Render foot length
+        document.getElementById('resFoot').innerText = formatHeightDisplay(measurements.armsLegs.footLengthInches);
+        
+        // Render speeds
+        if (outputUnit === 'metric') {
+            const walkSpeedKmh = Math.floor(measurements.movement.walkSpeedMph * 1.60934 * 10) / 10;
+            const runSpeedKmh = Math.floor(measurements.movement.runSpeedMph * 1.60934 * 10) / 10;
+            document.getElementById('resWalkSpeed').innerText = walkSpeedKmh + " km/h";
+            document.getElementById('resRunSpeed').innerText = runSpeedKmh + " km/h";
+        } else {
+            document.getElementById('resWalkSpeed').innerText = measurements.movement.walkSpeedMph.toFixed(1) + " mph";
+            document.getElementById('resRunSpeed').innerText = measurements.movement.runSpeedMph.toFixed(1) + " mph";
+        }
+    }
+    
+    function renderMeasurementsGrid(measurements, outputUnit) {
         const grid = document.getElementById('measurementsGrid');
         grid.innerHTML = '';
-
+        
+        const formatMetric = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
         const add = (label, value) => {
             const div = document.createElement('div');
             div.className = 'result-item';
             div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
             grid.appendChild(div);
         };
-
-        // Helper for metric formatting
-        const formatMetric = (inches) => {
-            const cm = inches * 2.54;
-            if (cm >= 100000) { // 1km
-                return (Math.floor(cm / 100000 * 100) / 100) + " km";
-            } else if (cm >= 1000) { // 10m - only show meters above this
-                return (Math.floor(cm / 100 * 100) / 100) + " m";
-            } else {
-                return (Math.floor(cm * 10) / 10) + " cm";
-            }
-        };
-
-        // Top to Bottom anatomical order
-        const headw = (startInches / 7) * (2/3);
-        const headh = startInches / 7;
         
-        // Calculate values in inches
-        const shoulderWidth = headw * 2.9 * factor;
-        const breastHeight = ((headh*5)-(((cup+((cup+1)/cup-0.1)*1.5)-3.65))*0.8)*factor;
-        const hipHeight = headh*4 * factor;
-        const hipWidth = headw * (2 + (key3/32 - 1) * 1.5) * factor;
-        const crotchHeight = headh*3.5 * factor;
-        const kneeHeight = headh*1.875 * factor;
-        const ankleHeight = headh/3 * factor;
-
-        // Format based on output unit
+        // Display key heights in anatomical order
         if (outputUnit === 'metric') {
-            add("Shoulder Width", formatMetric(shoulderWidth));
-            add("Breast Height", formatMetric(breastHeight));
-            add("Hip Height", formatMetric(hipHeight));
-            add("Hip Width", formatMetric(hipWidth));
-            add("Crotch Height", formatMetric(crotchHeight));
-            add("Knee Height", formatMetric(kneeHeight));
-            add("Ankle Height", formatMetric(ankleHeight));
+            add("Shoulder Width", formatMetric(measurements.overall.shoulderWidthInches));
+            add("Breast Height", formatMetric(measurements.keyHeights.breastHeightInches));
+            add("Hip Height", formatMetric(measurements.keyHeights.hipHeightInches));
+            add("Hip Width", formatMetric(measurements.overall.hipWidthInches));
+            add("Crotch Height", formatMetric(measurements.keyHeights.crotchHeightInches));
+            add("Knee Height", formatMetric(measurements.keyHeights.kneeHeightInches));
+            add("Ankle Height", formatMetric(measurements.keyHeights.ankleHeightInches));
         } else {
-            add("Shoulder Width", formatHeight(shoulderWidth));
-            add("Breast Height", formatHeight(breastHeight));
-            add("Hip Height", formatHeight(hipHeight));
-            add("Hip Width", formatHeight(hipWidth));
-            add("Crotch Height", formatHeight(crotchHeight));
-            add("Knee Height", formatHeight(kneeHeight));
-            add("Ankle Height", formatHeight(ankleHeight));
+            add("Shoulder Width", formatHeight(measurements.overall.shoulderWidthInches));
+            add("Breast Height", formatHeight(measurements.keyHeights.breastHeightInches));
+            add("Hip Height", formatHeight(measurements.keyHeights.hipHeightInches));
+            add("Hip Width", formatHeight(measurements.overall.hipWidthInches));
+            add("Crotch Height", formatHeight(measurements.keyHeights.crotchHeightInches));
+            add("Knee Height", formatHeight(measurements.keyHeights.kneeHeightInches));
+            add("Ankle Height", formatHeight(measurements.keyHeights.ankleHeightInches));
         }
     }
-
-    function populateFunMetrics(factor, factor68, factor120) {
-        // Format large numbers with appropriate suffix (K, M, B, T)
+    
+    function renderEnergyStats(measurements) {
+        // Format large numbers with appropriate suffix
         const formatEnergy = (joules) => {
-            if (joules >= 1e12) {
-                return (joules / 1e12).toFixed(2) + "T";
-            } else if (joules >= 1e9) {
-                return (joules / 1e9).toFixed(2) + "B";
-            } else if (joules >= 1e6) {
-                return (joules / 1e6).toFixed(2) + "M";
-            } else if (joules >= 1e3) {
-                return (joules / 1e3).toFixed(2) + "K";
-            } else {
-                return joules.toFixed(0);
-            }
+            if (joules >= 1e12) return (joules / 1e12).toFixed(2) + "T";
+            else if (joules >= 1e9) return (joules / 1e9).toFixed(2) + "B";
+            else if (joules >= 1e6) return (joules / 1e6).toFixed(2) + "M";
+            else if (joules >= 1e3) return (joules / 1e3).toFixed(2) + "K";
+            else return joules.toFixed(0);
         };
-
-        // Calculate earthquake magnitude from joules
-        // Using simplified Richter scale: Magnitude ≈ (2/3) * log10(Joules) - 2.9
+        
+        // Calculate earthquake magnitude
         const calculateEarthquakeMagnitude = (joules) => {
             if (joules <= 0) return 0;
             const magnitude = (2/3) * Math.log10(joules) - 2.9;
             return Math.max(0, magnitude);
         };
-
-        // Format energy with optional earthquake magnitude (only if >= 0.1)
+        
+        // Format with optional earthquake magnitude
         const formatEnergyWithEarthquake = (joules) => {
             const energyStr = formatEnergy(joules) + " Joules";
             const magnitude = calculateEarthquakeMagnitude(joules);
@@ -1206,17 +1186,13 @@
             }
             return energyStr;
         };
-
-        // Energy calculations
-        const stepJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(9.81)*(0.07*factor);
-        const stompJoules = (factor120*120*Math.pow(factor,3)*0.4536)/2*(11.5)*(0.5*factor);
-        const jumpJoules = (factor120*120*Math.pow(factor,3)*0.4536)*(9.81)*(0.43*factor);
-
-        // Format with earthquake magnitude (only if >= 0.1)
-        document.getElementById('resStepEnergy').innerHTML = formatEnergyWithEarthquake(stepJoules);
-        document.getElementById('resStompEnergy').innerHTML = formatEnergyWithEarthquake(stompJoules);
-        document.getElementById('resJumpEnergy').innerHTML = formatEnergyWithEarthquake(jumpJoules);
+        
+        document.getElementById('resStepEnergy').innerHTML = formatEnergyWithEarthquake(measurements.energy.stepJoules);
+        document.getElementById('resStompEnergy').innerHTML = formatEnergyWithEarthquake(measurements.energy.stompJoules);
+        document.getElementById('resJumpEnergy').innerHTML = formatEnergyWithEarthquake(measurements.energy.jumpJoules);
     }
+
+    // Old functions removed - replaced by new JSON-based rendering functions above
 
     function switchOutputUnit(unitType, buttonElement) {
         // Update current output unit
