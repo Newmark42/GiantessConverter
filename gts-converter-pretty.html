@@ -236,6 +236,60 @@
             color: white;
         }
 
+        /* Accordion/Collapsible Sections */
+        .accordion-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: var(--secondary-color);
+            padding: 12px 15px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background-color: #f8bbd9;
+        }
+
+        .accordion-header.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .accordion-chevron {
+            transition: transform 0.2s;
+            font-size: 0.8em;
+        }
+
+        .accordion-header.active .accordion-chevron {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+        }
+
+        .accordion-content.active {
+            max-height: 500px;
+            transition: max-height 0.3s ease-in;
+        }
+
+        .accordion-body {
+            padding: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -474,15 +528,104 @@
             </div>
         </div>
 
-        <!-- Measurements Column (Right) -->
+        <!-- Measurements Column (Right) - Accordion Sections -->
         <div class="measurements-col">
             <div class="card">
-                <div class="result-item" style="margin-bottom: 15px;">
-                    <div class="result-label">Total Height</div>
-                    <div class="result-value" id="resHeight">50 ft</div>
+                <!-- Key Heights - Open by default -->
+                <div class="accordion-section">
+                    <div class="accordion-header active" onclick="toggleAccordion('keyHeights', this)">
+                        <span>Key Heights</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content active" id="keyHeights-content">
+                        <div class="accordion-body">
+                            <div class="result-item" style="margin-bottom: 15px;">
+                                <div class="result-label">Total Height</div>
+                                <div class="result-value" id="resHeight">50 ft</div>
+                            </div>
+                            <div id="keyHeightsContent">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="results-grid" id="measurementsGrid" style="grid-template-columns: 1fr;">
-                    <!-- Populated by JS -->
+
+                <!-- Head Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('head', this)">
+                        <span>Head</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="head-content">
+                        <div class="accordion-body" id="headContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breasts Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('breasts', this)">
+                        <span>Breasts</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="breasts-content">
+                        <div class="accordion-body" id="breastsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milk Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('milk', this)">
+                        <span>Milk</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="milk-content">
+                        <div class="accordion-body" id="milkContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crotch Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('crotch', this)">
+                        <span>Crotch</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="crotch-content">
+                        <div class="accordion-body" id="crotchContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arms & Legs Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('armsLegs', this)">
+                        <span>Arms & Legs</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="armsLegs-content">
+                        <div class="accordion-body" id="armsLegsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Movement Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('movement', this)">
+                        <span>Movement</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="movement-content">
+                        <div class="accordion-body" id="movementContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1034,7 +1177,8 @@
                 kneeHeightInches: headh * 1.875 * factor,
                 crotchHeightInches: headh * 3.5 * factor,
                 hipHeightInches: headh * 4 * factor,
-                breastHeightInches: ((headh * 5) - (((breast + cupcomp * 1.5) - 3.65)) * 0.8) * factor,
+                breastCuspHeightInches: ((headh * 5) - (((breast + cupcomp * 1.5) - 3.65)) * 0.8) * factor,
+                nippleHeightInches: ((headh * 5) - (((breast + cupcomp * 1.5) - 3.65)) * 0.8) * factor + (breast + cupcomp) * 1.35 * factor,
                 neckHeightInches: headh * 5.75 * factor,
                 chinHeightInches: headh * 6 * factor
             },
@@ -1094,10 +1238,9 @@
     function renderMeasurementsFromJSON(measurements, outputUnit = 'standard') {
         // Main render orchestrator
         renderKeyStats(measurements, outputUnit);
-        renderMeasurementsGrid(measurements, outputUnit);
         renderEnergyStats(measurements);
         
-        // Render all body part sections
+        // Render all body part sections (accordion sections)
         renderAllBodyPartSections(measurements, outputUnit);
     }
     
@@ -1123,27 +1266,30 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
-                <div style="text-align: right; font-weight: bold;">Ankle:</div>
-                <div>${formatValue(measurements.keyHeights.ankleHeightInches)}</div>
-                
-                <div style="text-align: right; font-weight: bold;">Knee:</div>
-                <div>${formatValue(measurements.keyHeights.kneeHeightInches)}</div>
-                
-                <div style="text-align: right; font-weight: bold;">Crotch:</div>
-                <div>${formatValue(measurements.keyHeights.crotchHeightInches)}</div>
-                
-                <div style="text-align: right; font-weight: bold;">Hip:</div>
-                <div>${formatValue(measurements.keyHeights.hipHeightInches)}</div>
-                
-                <div style="text-align: right; font-weight: bold;">Breast:</div>
-                <div>${formatValue(measurements.keyHeights.breastHeightInches)}</div>
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Chin:</div>
+                <div>${formatValue(measurements.keyHeights.chinHeightInches)}</div>
                 
                 <div style="text-align: right; font-weight: bold;">Neck:</div>
                 <div>${formatValue(measurements.keyHeights.neckHeightInches)}</div>
                 
-                <div style="text-align: right; font-weight: bold;">Chin:</div>
-                <div>${formatValue(measurements.keyHeights.chinHeightInches)}</div>
+                <div style="text-align: right; font-weight: bold;">Nipple:</div>
+                <div>${formatValue(measurements.keyHeights.nippleHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Breast Cusp:</div>
+                <div>${formatValue(measurements.keyHeights.breastCuspHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Hip:</div>
+                <div>${formatValue(measurements.keyHeights.hipHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Crotch:</div>
+                <div>${formatValue(measurements.keyHeights.crotchHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Knee:</div>
+                <div>${formatValue(measurements.keyHeights.kneeHeightInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Ankle:</div>
+                <div>${formatValue(measurements.keyHeights.ankleHeightInches)}</div>
             </div>
         `;
     }
@@ -1160,7 +1306,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Hair diameter:</div>
                 <div>${formatValue(measurements.head.hairDiameterInches)}</div>
                 
@@ -1173,7 +1319,7 @@
                 <div style="text-align: right; font-weight: bold;">Tongue length:</div>
                 <div>${formatValue(measurements.head.tongueLengthInches)}</div>
                 
-                <div style="text-align: right; font-weight: bold;">Tongue stick-out:</div>
+                <div style="text-align: right; font-weight: bold;">Tongue extension:</div>
                 <div>${formatValue(measurements.head.tongueStickOutInches)}</div>
             </div>
         `;
@@ -1207,7 +1353,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Height:</div>
                 <div>${formatValue(measurements.breasts.heightInches)}</div>
                 
@@ -1229,8 +1375,8 @@
                 <div style="text-align: right; font-weight: bold;">Nipple erect:</div>
                 <div>${formatValue(measurements.breasts.nippleErectLengthInches)}</div>
                 
-                <div style="text-align: right; font-style: italic; color: #666;">Height to breasts:</div>
-                <div style="color: #666; font-style: italic;">${formatValue(measurements.keyHeights.breastHeightInches)}</div>
+                <div style="text-align: right; font-style: italic; color: #666;">Height to breast cusp:</div>
+                <div style="color: #666; font-style: italic;">${formatValue(measurements.keyHeights.breastCuspHeightInches)}</div>
             </div>
         `;
     }
@@ -1256,7 +1402,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Stream diameter:</div>
                 <div>${formatValue(measurements.breasts.milkDuctDiameterInches)}</div>
                 
@@ -1281,7 +1427,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Vagina depth:</div>
                 <div>${formatValue(measurements.crotch.vaginaDepthInches)}</div>
                 
@@ -1306,7 +1452,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Arm length:</div>
                 <div>${formatValue(measurements.armsLegs.armLengthInches)}</div>
                 
@@ -1344,7 +1490,7 @@
         };
         
         container.innerHTML = `
-            <div style="font-size: 0.9em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; line-height: 1.3;">
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">Walking stride:</div>
                 <div>${formatValue(measurements.movement.walkStrideInches)}</div>
                 
@@ -1450,43 +1596,7 @@
         }
     }
     
-    function renderMeasurementsGrid(measurements, outputUnit) {
-        const grid = document.getElementById('measurementsGrid');
-        grid.innerHTML = '';
-        
-        const formatMetric = (inches) => {
-            const cm = inches * INCHES_TO_CM;
-            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
-            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
-            else return (Math.floor(cm * 10) / 10) + " cm";
-        };
-        
-        const add = (label, value) => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerHTML = `<div class="result-label">${label}</div><div class="result-value">${value}</div>`;
-            grid.appendChild(div);
-        };
-        
-        // Display key heights in anatomical order
-        if (outputUnit === 'metric') {
-            add("Shoulder Width", formatMetric(measurements.overall.shoulderWidthInches));
-            add("Breast Height", formatMetric(measurements.keyHeights.breastHeightInches));
-            add("Hip Height", formatMetric(measurements.keyHeights.hipHeightInches));
-            add("Hip Width", formatMetric(measurements.overall.hipWidthInches));
-            add("Crotch Height", formatMetric(measurements.keyHeights.crotchHeightInches));
-            add("Knee Height", formatMetric(measurements.keyHeights.kneeHeightInches));
-            add("Ankle Height", formatMetric(measurements.keyHeights.ankleHeightInches));
-        } else {
-            add("Shoulder Width", formatHeight(measurements.overall.shoulderWidthInches));
-            add("Breast Height", formatHeight(measurements.keyHeights.breastHeightInches));
-            add("Hip Height", formatHeight(measurements.keyHeights.hipHeightInches));
-            add("Hip Width", formatHeight(measurements.overall.hipWidthInches));
-            add("Crotch Height", formatHeight(measurements.keyHeights.crotchHeightInches));
-            add("Knee Height", formatHeight(measurements.keyHeights.kneeHeightInches));
-            add("Ankle Height", formatHeight(measurements.keyHeights.ankleHeightInches));
-        }
-    }
+    // Removed renderMeasurementsGrid - replaced by accordion sections
     
     function renderEnergyStats(measurements) {
         // Format large numbers with appropriate suffix
@@ -1520,6 +1630,21 @@
         document.getElementById('resJumpEnergy').innerHTML = formatEnergyWithEarthquake(measurements.energy.jumpJoules);
     }
 
+    // Accordion functionality
+    function toggleAccordion(sectionName, headerElement) {
+        const allHeaders = document.querySelectorAll('.accordion-header');
+        const allContents = document.querySelectorAll('.accordion-content');
+        const targetContent = document.getElementById(sectionName + '-content');
+        
+        // Close all sections
+        allHeaders.forEach(header => header.classList.remove('active'));
+        allContents.forEach(content => content.classList.remove('active'));
+        
+        // Open clicked section
+        headerElement.classList.add('active');
+        targetContent.classList.add('active');
+    }
+    
     // Old functions removed - replaced by new JSON-based rendering functions above
 
     function switchOutputUnit(unitType, buttonElement) {
