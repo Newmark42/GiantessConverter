@@ -20,7 +20,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px 20px;
             line-height: 1.6;
         }
 
@@ -46,18 +46,32 @@
             margin-bottom: 20px;
         }
 
+        .left-col .card {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+        }
+
         h1, h2, h3 {
             color: var(--primary-color);
             margin-top: 0;
         }
 
+        .left-col h2 {
+            margin-bottom: 10px;
+        }
+
         h1 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            margin-top: 10px;
         }
 
         .input-group {
             margin-bottom: 15px;
+        }
+
+        .left-col .input-group {
+            margin-bottom: 12px;
         }
 
         label {
@@ -456,6 +470,10 @@
         <!-- Measurements Column (Right) -->
         <div class="measurements-col">
             <div class="card">
+                <div class="result-item" style="margin-bottom: 15px;">
+                    <div class="result-label">Total Height</div>
+                    <div class="result-value" id="resHeight">50 ft</div>
+                </div>
                 <div class="results-grid" id="measurementsGrid" style="grid-template-columns: 1fr;">
                     <!-- Populated by JS -->
                 </div>
@@ -466,10 +484,6 @@
         <div style="grid-column: 1 / -1;">
             <div class="card" style="padding: 10px 20px;">
                 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-                    <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
-                        <div class="result-label">Total Height</div>
-                        <div class="result-value" id="resHeight">50 ft</div>
-                    </div>
                     <div class="result-item" style="flex: 0 1 220px; min-width: 180px;">
                         <div class="result-label">Weight</div>
                         <div class="result-value" id="resWeight">--</div>
