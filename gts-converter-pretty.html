@@ -227,100 +227,202 @@
         <!-- Left Column: Inputs -->
         <div class="left-col">
             <div class="range-buttons" style="margin-bottom: 15px;">
-                <button class="range-btn active">Standard</button>
-                <button class="range-btn">Metric</button>
+                <button class="range-btn active" onclick="switchInputUnit('standard', this)">Standard</button>
+                <button class="range-btn" onclick="switchInputUnit('metric', this)">Metric</button>
             </div>
-            <div class="card">
-                <h2>Before Size</h2>
-                <div class="row">
-                    <div class="input-group">
-                        <label>Feet</label>
-                        <input type="number" id="wmnfeet" value="5">
+
+            <!-- Standard Inputs -->
+            <div id="standard-inputs" class="tab-content active">
+                <div class="card">
+                    <h2>Before Size</h2>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Feet</label>
+                            <input type="number" id="wmnfeet" value="5">
+                        </div>
+                        <div class="input-group">
+                            <label>Inches</label>
+                            <input type="number" id="wmninches" value="6">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Inches</label>
-                        <input type="number" id="wmninches" value="6">
+                        <label>Weight (lbs)</label>
+                        <input type="number" id="wmnweight" value="100">
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Cup Size</label>
+                            <select id="cup">
+                                <option value="0.8">A</option>
+                                <option value="1.6">B</option>
+                                <option value="2.35" selected>C</option>
+                                <option value="3.05">D</option>
+                                <option value="3.75">E</option>
+                                <option value="4.4">F</option>
+                                <option value="5.05">G</option>
+                                <option value="5.65">H</option>
+                                <option value="6.25">I</option>
+                                <option value="6.8">J</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Shoe (US)</label>
+                            <select id="shoe">
+                                <option value="8">3</option>
+                                <option value="8.69">5</option>
+                                <option value="9">6</option>
+                                <option value="9.31">7</option>
+                                <option value="9.69" selected>8</option>
+                                <option value="10">9</option>
+                                <option value="10.31">10</option>
+                                <option value="11">12</option>
+                                <option value="12">15</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Bust (in)</label>
+                            <input type="number" id="key1" value="36">
+                        </div>
+                        <div class="input-group">
+                            <label>Waist (in)</label>
+                            <input type="number" id="key2" value="24">
+                        </div>
+                        <div class="input-group">
+                            <label>Hips (in)</label>
+                            <input type="number" id="key3" value="36">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Lift Capacity (lbs)</label>
+                        <input type="number" id="gtslift" value="50">
                     </div>
                 </div>
-                <div class="input-group">
-                    <label>Weight</label>
-                    <input type="number" id="wmnweight" value="100">
-                </div>
-                <div class="row">
-                    <div class="input-group">
-                        <label>Cup Size</label>
-                        <select id="cup">
-                            <option value="0.8">A</option>
-                            <option value="1.6">B</option>
-                            <option value="2.35" selected>C</option>
-                            <option value="3.05">D</option>
-                            <option value="3.75">E</option>
-                            <option value="4.4">F</option>
-                            <option value="5.05">G</option>
-                            <option value="5.65">H</option>
-                            <option value="6.25">I</option>
-                            <option value="6.8">J</option>
-                        </select>
+
+                <div class="card">
+                    <h2>Target Size</h2>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Miles</label>
+                            <input type="number" id="gtsmiles" value="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Feet</label>
+                            <input type="number" id="gtsfeet" value="50">
+                        </div>
+                        <div class="input-group">
+                            <label>Inches</label>
+                            <input type="number" id="gtsinches" value="0">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Shoe (US)</label>
-                        <select id="shoe">
-                            <option value="8">3</option>
-                            <option value="8.69">5</option>
-                            <option value="9">6</option>
-                            <option value="9.31">7</option>
-                            <option value="9.69" selected>8</option>
-                            <option value="10">9</option>
-                            <option value="10.31">10</option>
-                            <option value="11">12</option>
-                            <option value="12">15</option>
-                        </select>
+                        <label>Quick Scale Slider (approx)</label>
+                        <input type="range" id="heightSlider" min="7.5" max="500" value="50" step="0.5">
+                        <div class="range-buttons">
+                            <button class="range-btn" onclick="setRange('mini', this)">MiniGTS</button>
+                            <button class="range-btn active" onclick="setRange('gts', this)">GTS</button>
+                            <button class="range-btn" onclick="setRange('mega', this)">Mega</button>
+                            <button class="range-btn" onclick="setRange('giga', this)">Giga</button>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="input-group">
-                        <label>Bust</label>
-                        <input type="number" id="key1" value="36">
-                    </div>
-                    <div class="input-group">
-                        <label>Waist</label>
-                        <input type="number" id="key2" value="24">
-                    </div>
-                    <div class="input-group">
-                        <label>Hips</label>
-                        <input type="number" id="key3" value="36">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>Lift Capacity</label>
-                    <input type="number" id="gtslift" value="50">
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Target Size</h2>
-                <div class="row">
-                    <div class="input-group">
-                        <label>Miles</label>
-                        <input type="number" id="gtsmiles" value="0">
+            <!-- Metric Inputs -->
+            <div id="metric-inputs" class="tab-content">
+                <div class="card">
+                    <h2>Before Size</h2>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>m</label>
+                            <input type="number" id="wmnmeters" value="1.68" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>cm</label>
+                            <input type="number" id="wmncm" value="0">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Feet</label>
-                        <input type="number" id="gtsfeet" value="50">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="wmnkg" value="45" step="0.1">
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Cup Size</label>
+                            <select id="cupMetric">
+                                <option value="0.8">A</option>
+                                <option value="1.6">B</option>
+                                <option value="2.35" selected>C</option>
+                                <option value="3.05">D</option>
+                                <option value="3.75">E</option>
+                                <option value="4.4">F</option>
+                                <option value="5.05">G</option>
+                                <option value="5.65">H</option>
+                                <option value="6.25">I</option>
+                                <option value="6.8">J</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Shoe (EU)</label>
+                            <select id="shoeMetric">
+                                <option value="8">35</option>
+                                <option value="8.69">37</option>
+                                <option value="9">38</option>
+                                <option value="9.31">39</option>
+                                <option value="9.69" selected>40</option>
+                                <option value="10">41</option>
+                                <option value="10.31">42</option>
+                                <option value="11">44</option>
+                                <option value="12">47</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>Bust (cm)</label>
+                            <input type="number" id="key1Metric" value="91" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Waist (cm)</label>
+                            <input type="number" id="key2Metric" value="61" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Hips (cm)</label>
+                            <input type="number" id="key3Metric" value="91" step="0.1">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label>Inches</label>
-                        <input type="number" id="gtsinches" value="0">
+                        <label>Lift Capacity (kg)</label>
+                        <input type="number" id="gtsliftMetric" value="23" step="0.1">
                     </div>
                 </div>
-                <div class="input-group">
-                    <label>Quick Scale Slider (approx)</label>
-                    <input type="range" id="heightSlider" min="7.5" max="500" value="50" step="0.5">
-                    <div class="range-buttons">
-                        <button class="range-btn" onclick="setRange('mini', this)">MiniGTS</button>
-                        <button class="range-btn active" onclick="setRange('gts', this)">GTS</button>
-                        <button class="range-btn" onclick="setRange('mega', this)">Mega</button>
-                        <button class="range-btn" onclick="setRange('giga', this)">Giga</button>
+
+                <div class="card">
+                    <h2>Target Size</h2>
+                    <div class="row">
+                        <div class="input-group">
+                            <label>km</label>
+                            <input type="number" id="gtskm" value="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>m</label>
+                            <input type="number" id="gtsmeters" value="15.24" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>cm</label>
+                            <input type="number" id="gtscm" value="0">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Quick Scale Slider (approx)</label>
+                        <input type="range" id="heightSliderMetric" min="2.3" max="152.4" value="15.24" step="0.1">
+                        <div class="range-buttons">
+                            <button class="range-btn" onclick="setRangeMetric('mini', this)">MiniGTS</button>
+                            <button class="range-btn active" onclick="setRangeMetric('gts', this)">GTS</button>
+                            <button class="range-btn" onclick="setRangeMetric('mega', this)">Mega</button>
+                            <button class="range-btn" onclick="setRangeMetric('giga', this)">Giga</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -457,8 +559,123 @@
 
     // --- LOGIC ---
 
-    function update() {
-        // 1. Get Inputs
+    // Conversion constants
+    const INCHES_TO_CM = 2.54;
+    const LBS_TO_KG = 0.453592;
+    const FEET_TO_METERS = 0.3048;
+
+    function updateFromStandard() {
+        // Read standard inputs
+        const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
+        const wmninches = parseFloat(document.getElementById('wmninches').value) || 0;
+        const wmnweight = parseFloat(document.getElementById('wmnweight').value) || 0;
+        const cup = parseFloat(document.getElementById('cup').value) || 2.35;
+        const shoe = parseFloat(document.getElementById('shoe').value) || 9.69;
+        const key1 = parseFloat(document.getElementById('key1').value) || 36;
+        const key2 = parseFloat(document.getElementById('key2').value) || 24;
+        const key3 = parseFloat(document.getElementById('key3').value) || 36;
+        const gtslift = parseFloat(document.getElementById('gtslift').value) || 50;
+        const gtsmiles = parseFloat(document.getElementById('gtsmiles').value) || 0;
+        const gtsfeet = parseFloat(document.getElementById('gtsfeet').value) || 0;
+        const gtsinches = parseFloat(document.getElementById('gtsinches').value) || 0;
+
+        // Convert to metric and update metric inputs
+        const totalInches = (wmnfeet * 12) + wmninches;
+        const totalCm = totalInches * INCHES_TO_CM;
+        // Only use meters field when >= 10m (1000cm)
+        if (totalCm >= 1000) {
+            document.getElementById('wmnmeters').value = Math.floor(totalCm / 100).toFixed(2);
+            document.getElementById('wmncm').value = Math.floor(totalCm % 100);
+        } else {
+            document.getElementById('wmnmeters').value = 0;
+            document.getElementById('wmncm').value = Math.floor(totalCm);
+        }
+        
+        document.getElementById('wmnkg').value = (wmnweight * LBS_TO_KG).toFixed(1);
+        document.getElementById('cupMetric').value = cup;
+        document.getElementById('shoeMetric').value = shoe;
+        document.getElementById('key1Metric').value = (key1 * INCHES_TO_CM).toFixed(1);
+        document.getElementById('key2Metric').value = (key2 * INCHES_TO_CM).toFixed(1);
+        document.getElementById('key3Metric').value = (key3 * INCHES_TO_CM).toFixed(1);
+        document.getElementById('gtsliftMetric').value = (gtslift * LBS_TO_KG).toFixed(1);
+
+        // Target size
+        const targetInches = (gtsmiles * 63360) + (gtsfeet * 12) + gtsinches;
+        const targetCm = targetInches * INCHES_TO_CM;
+        const targetMeters = targetCm / 100;
+        if (targetMeters >= 1000) {
+            document.getElementById('gtskm').value = Math.floor(targetMeters / 1000);
+            document.getElementById('gtsmeters').value = (targetMeters % 1000).toFixed(2);
+        } else {
+            document.getElementById('gtskm').value = 0;
+            document.getElementById('gtsmeters').value = targetMeters.toFixed(2);
+        }
+        document.getElementById('gtscm').value = Math.floor(targetCm % 100);
+
+        // Update metric slider to match
+        const heightSliderMetric = document.getElementById('heightSliderMetric');
+        if (heightSliderMetric) {
+            heightSliderMetric.value = targetMeters.toFixed(2);
+        }
+
+        // Update outputs
+        updateOutputsFromStandard();
+    }
+
+    function updateFromMetric() {
+        // Read metric inputs
+        const wmnmeters = parseFloat(document.getElementById('wmnmeters').value) || 0;
+        const wmncm = parseFloat(document.getElementById('wmncm').value) || 0;
+        const wmnkg = parseFloat(document.getElementById('wmnkg').value) || 0;
+        const cupMetric = parseFloat(document.getElementById('cupMetric').value) || 2.35;
+        const shoeMetric = parseFloat(document.getElementById('shoeMetric').value) || 9.69;
+        const key1Metric = parseFloat(document.getElementById('key1Metric').value) || 91;
+        const key2Metric = parseFloat(document.getElementById('key2Metric').value) || 61;
+        const key3Metric = parseFloat(document.getElementById('key3Metric').value) || 91;
+        const gtsliftMetric = parseFloat(document.getElementById('gtsliftMetric').value) || 23;
+        const gtskm = parseFloat(document.getElementById('gtskm').value) || 0;
+        const gtsmeters = parseFloat(document.getElementById('gtsmeters').value) || 0;
+        const gtscm = parseFloat(document.getElementById('gtscm').value) || 0;
+
+        // Convert to standard and update standard inputs
+        const totalCm = (wmnmeters * 100) + wmncm;
+        const totalInches = totalCm / INCHES_TO_CM;
+        document.getElementById('wmnfeet').value = Math.floor(totalInches / 12);
+        document.getElementById('wmninches').value = Math.floor(totalInches % 12);
+        
+        document.getElementById('wmnweight').value = Math.round(wmnkg / LBS_TO_KG);
+        document.getElementById('cup').value = cupMetric;
+        document.getElementById('shoe').value = shoeMetric;
+        document.getElementById('key1').value = Math.round(key1Metric / INCHES_TO_CM);
+        document.getElementById('key2').value = Math.round(key2Metric / INCHES_TO_CM);
+        document.getElementById('key3').value = Math.round(key3Metric / INCHES_TO_CM);
+        document.getElementById('gtslift').value = Math.round(gtsliftMetric / LBS_TO_KG);
+
+        // Target size
+        const targetCm = (gtskm * 100000) + (gtsmeters * 100) + gtscm;
+        const targetInches = targetCm / INCHES_TO_CM;
+        const targetFeet = targetInches / 12;
+        if (targetFeet >= 5280) {
+            document.getElementById('gtsmiles').value = Math.floor(targetFeet / 5280);
+            document.getElementById('gtsfeet').value = Math.floor(targetFeet % 5280);
+        } else {
+            document.getElementById('gtsmiles').value = 0;
+            document.getElementById('gtsfeet').value = Math.floor(targetFeet);
+        }
+        document.getElementById('gtsinches').value = Math.floor(targetInches % 12);
+
+        // Update standard slider to match
+        const heightSlider = document.getElementById('heightSlider');
+        if (heightSlider) {
+            heightSlider.value = targetFeet.toFixed(1);
+        }
+
+        // Update outputs
+        updateOutputsFromStandard();
+    }
+
+    function updateOutputsFromStandard() {
+        // 1. Get Inputs (from standard)
         const wmnfeet = parseFloat(document.getElementById('wmnfeet').value) || 0;
         const wmninches = parseFloat(document.getElementById('wmninches').value) || 0;
         const wmnweight = parseFloat(document.getElementById('wmnweight').value) || 0;
@@ -787,11 +1004,70 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Event Listeners
-    const inputs = document.querySelectorAll('input, select');
-    inputs.forEach(input => {
-        input.addEventListener('input', update);
-        input.addEventListener('change', update);
+    function switchInputUnit(unitType, buttonElement) {
+        // Update button states
+        const buttons = buttonElement.parentElement.querySelectorAll('.range-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+        
+        // Update content visibility
+        document.getElementById('standard-inputs').classList.remove('active');
+        document.getElementById('metric-inputs').classList.remove('active');
+        document.getElementById(unitType + '-inputs').classList.add('active');
+    }
+
+    function setRangeMetric(rangeType, buttonElement) {
+        // Metric version of setRange - placeholder for now
+        const RANGES_METRIC = {
+            mini: { min: 2.3, max: 7.6, default: 4.6 },
+            gts: { min: 6.1, max: 61, default: 15.24 },
+            mega: { min: 61, max: 762, default: 152.4 },
+            giga: { min: 152.4, max: 160934, default: 1524 }
+        };
+        
+        const range = RANGES_METRIC[rangeType];
+        const slider = document.getElementById('heightSliderMetric');
+        slider.min = range.min;
+        slider.max = range.max;
+        slider.value = range.default;
+        
+        // Update active button
+        const buttons = buttonElement.parentElement.querySelectorAll('.range-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+        
+        // Update target size (convert meters to km/m/cm)
+        const meters = parseFloat(slider.value);
+        if (meters >= 1000) {
+            document.getElementById('gtskm').value = Math.floor(meters / 1000);
+            document.getElementById('gtsmeters').value = (meters % 1000).toFixed(2);
+        } else {
+            document.getElementById('gtskm').value = 0;
+            document.getElementById('gtsmeters').value = meters.toFixed(2);
+        }
+        document.getElementById('gtscm').value = 0;
+        
+        updateFromMetric();
+    }
+
+    // Event Listeners - Standard inputs
+    const standardInputIds = ['wmnfeet', 'wmninches', 'wmnweight', 'cup', 'shoe', 'key1', 'key2', 'key3', 'gtslift', 'gtsmiles', 'gtsfeet', 'gtsinches'];
+    standardInputIds.forEach(id => {
+        const elem = document.getElementById(id);
+        if (elem) {
+            elem.addEventListener('input', updateFromStandard);
+            elem.addEventListener('change', updateFromStandard);
+        }
+    });
+
+    // Event Listeners - Metric inputs
+    const metricInputIds = ['wmnmeters', 'wmncm', 'wmnkg', 'cupMetric', 'shoeMetric', 'key1Metric', 'key2Metric', 'key3Metric', 'gtsliftMetric', 'gtskm', 'gtsmeters', 'gtscm'];
+    metricInputIds.forEach(id => {
+        const elem = document.getElementById(id);
+        if (elem) {
+            elem.addEventListener('input', updateFromMetric);
+            elem.addEventListener('change', updateFromMetric);
+        }
     });
 
     // Range presets
@@ -827,7 +1103,7 @@
             document.getElementById('gtsmiles').value = 0;
             document.getElementById('gtsfeet').value = Math.floor(feet);
         }
-        update();
+        updateFromStandard();
     }
 
     // Slider Logic
@@ -842,11 +1118,26 @@
             document.getElementById('gtsmiles').value = 0;
             document.getElementById('gtsfeet').value = Math.floor(val);
         }
-        update();
+        updateFromStandard();
+    });
+
+    // Slider Logic for Metric
+    const sliderMetric = document.getElementById('heightSliderMetric');
+    sliderMetric.addEventListener('input', (e) => {
+        const meters = parseFloat(e.target.value);
+        if (meters >= 1000) {
+            document.getElementById('gtskm').value = Math.floor(meters / 1000);
+            document.getElementById('gtsmeters').value = (meters % 1000).toFixed(2);
+        } else {
+            document.getElementById('gtskm').value = 0;
+            document.getElementById('gtsmeters').value = meters.toFixed(2);
+        }
+        document.getElementById('gtscm').value = 0;
+        updateFromMetric();
     });
 
     // Initial Call
-    update();
+    updateFromStandard();
 
 </script>
 </body>
