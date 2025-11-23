@@ -921,14 +921,26 @@
             line.setAttribute("stroke", "black");
             rulerGroup.appendChild(line);
             
-            // Text Label - show both units for clarity
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", "40");
-            text.setAttribute("y", visualY + 4); // Center vertically
-            text.setAttribute("text-anchor", "end");
-            text.setAttribute("font-size", "12");
-            text.textContent = formatHeightShortWithBothUnits(currentInches);
-            rulerGroup.appendChild(text);
+            // Text Labels - skip for zero (bottom tick)
+            if (currentInches > 0) {
+                // Text Label - Standard units (left side)
+                const textStandard = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textStandard.setAttribute("x", "40");
+                textStandard.setAttribute("y", visualY + 4);
+                textStandard.setAttribute("text-anchor", "end");
+                textStandard.setAttribute("font-size", "12");
+                textStandard.textContent = formatHeightShortWithBothUnits(currentInches);
+                rulerGroup.appendChild(textStandard);
+                
+                // Text Label - Metric units (right side)
+                const textMetric = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textMetric.setAttribute("x", "60");
+                textMetric.setAttribute("y", visualY + 4);
+                textMetric.setAttribute("text-anchor", "start");
+                textMetric.setAttribute("font-size", "12");
+                textMetric.textContent = formatHeightMetricShort(currentInches);
+                rulerGroup.appendChild(textMetric);
+            }
         }
     }
 
@@ -955,6 +967,19 @@
             return inc > 0 ? `${ft}ft ${inc}in` : `${ft}ft`;
         } else {
             return Math.round(inches) + "in";
+        }
+    }
+
+    function formatHeightMetricShort(inches) {
+        if (inches === 0) return "0";
+        
+        const cm = inches * INCHES_TO_CM;
+        if (cm >= 100000) {
+            return (cm / 100000).toFixed(1) + "km";
+        } else if (cm >= 1000) {
+            return (cm / 100).toFixed(1) + "m";
+        } else {
+            return Math.round(cm) + "cm";
         }
     }
 
