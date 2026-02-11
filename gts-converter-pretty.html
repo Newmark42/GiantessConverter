@@ -1448,6 +1448,7 @@
     }
     
     function renderAllBodyPartSections(measurements, outputUnit) {
+        renderBodyDimensionsSection(measurements, outputUnit);
         renderKeyHeightsSection(measurements, outputUnit);
         renderHeadSection(measurements, outputUnit);
         renderBreastsSection(measurements, outputUnit);
@@ -1458,6 +1459,33 @@
         renderLiftingSection(measurements, outputUnit);
     }
     
+    
+    /**
+     * Renders the Body Dimensions accordion section
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
+    function renderBodyDimensionsSection(measurements, outputUnit) {
+        const container = document.getElementById('bodyDimensionsContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">Shoulder width:</div>
+                <div>${formatValue(measurements.overall.shoulderWidthInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold;">Hip width:</div>
+                <div>${formatValue(measurements.overall.hipWidthInches)}</div>
+            </div>
+        `;
+    }
     function renderKeyHeightsSection(measurements, outputUnit) {
         const container = document.getElementById('keyHeightsContent');
         const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
@@ -1765,12 +1793,24 @@
     function renderLiftingSection(measurements, outputUnit) {
         const container = document.getElementById('liftingContent');
         const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
-        const formatWeight = (lbs) => {
+        
+        // Weight formatting for lifting capacity (no decimals)
+        const formatLiftWeight = (lbs) => {
             if (outputUnit === 'metric') {
                 const kg = lbs * LBS_TO_KG;
-                return `${addCommas(Math.floor(kg * 100) / 100)} kg`;
+                return `${addCommas(Math.floor(kg))} kg`;
             } else {
                 return `${addCommas(Math.floor(lbs))} lbs`;
+            }
+        };
+        
+        // Weight formatting for man's weight (one decimal point)
+        const formatManWeight = (lbs) => {
+            if (outputUnit === 'metric') {
+                const kg = lbs * LBS_TO_KG;
+                return `${(Math.floor(kg * 10) / 10).toFixed(1)} kg`;
+            } else {
+                return `${(Math.floor(lbs * 10) / 10).toFixed(1)} lbs`;
             }
         };
         
@@ -1784,7 +1824,7 @@
         container.innerHTML = `
             <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
                 <div style="text-align: right; font-weight: bold;">She can lift:</div>
-                <div>${formatWeight(measurements.overall.liftCapacityLbs)}</div>
+                <div>${formatLiftWeight(measurements.overall.liftCapacityLbs)}</div>
                 
                 <div style="grid-column: 1 / -1; margin-top: 8px; font-weight: bold; color: var(--primary-color);">A 6', 180lb man would:</div>
                 
@@ -1792,7 +1832,7 @@
                 <div>${formatValue(measurements.reference.manHeightToHerInches)}</div>
                 
                 <div style="text-align: right; font-weight: bold; padding-left: 15px;">Weigh:</div>
-                <div>${formatWeight(measurements.reference.manWeightToHerLbs)}</div>
+                <div>${formatManWeight(measurements.reference.manWeightToHerLbs)}</div>
             </div>
         `;
     }
