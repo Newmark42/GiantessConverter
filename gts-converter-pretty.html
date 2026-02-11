@@ -554,6 +554,19 @@
         <!-- Measurements Column (Right) - Accordion Sections -->
         <div class="measurements-col">
             <div class="card">
+                <!-- Body Dimensions Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('bodyDimensions', this)">
+                        <span>Body Dimensions</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="bodyDimensions-content">
+                        <div class="accordion-body" id="bodyDimensionsContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Key Heights - Open by default -->
                 <div class="accordion-section">
                     <div class="accordion-header active" onclick="toggleAccordion('keyHeights', this)">
@@ -642,6 +655,19 @@
                     </div>
                     <div class="accordion-content" id="movement-content">
                         <div class="accordion-body" id="movementContent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifting Section -->
+                <div class="accordion-section">
+                    <div class="accordion-header" onclick="toggleAccordion('lifting', this)">
+                        <span>Lifting</span>
+                        <span class="accordion-chevron">▼</span>
+                    </div>
+                    <div class="accordion-content" id="lifting-content">
+                        <div class="accordion-body" id="liftingContent">
                             <!-- Populated by JS -->
                         </div>
                     </div>
@@ -1142,11 +1168,6 @@
      * @returns {string} Formatted weight string
      */
     function formatWeight(lbs) {
-        if (lbs >= 2000) {
-            const tons = Math.floor(lbs / 2000);
-            const remLbs = Math.floor(lbs % 2000);
-            return `${addCommas(tons)} tons, ${remLbs} lbs`;
-        }
         return `${addCommas(Math.floor(lbs))} lbs`;
     }
 
@@ -1434,6 +1455,7 @@
         renderCrotchSection(measurements, outputUnit);
         renderArmsLegsSection(measurements, outputUnit);
         renderMovementSection(measurements, outputUnit);
+        renderLiftingSection(measurements, outputUnit);
     }
     
     function renderKeyHeightsSection(measurements, outputUnit) {
@@ -1531,11 +1553,6 @@
         };
         
         const formatWeightImperial = (lbs) => {
-            if (lbs >= 2000) {
-                const tons = Math.floor(lbs / 2000);
-                const remLbs = Math.floor(lbs % 2000);
-                return `${addCommas(tons)} tons, ${remLbs} lbs`;
-            }
             return `${addCommas(Math.floor(lbs))} lbs`;
         };
         
@@ -1736,6 +1753,46 @@
                 
                 <div style="text-align: right; font-weight: bold;">Jump energy:</div>
                 <div>${formatEnergyWithEq(measurements.energy.jumpJoules)}</div>
+            </div>
+        `;
+    }
+    
+    /**
+     * Renders the Lifting measurements accordion section
+     * @param {Object} measurements - Complete measurements object
+     * @param {string} outputUnit - Display unit preference
+     */
+    function renderLiftingSection(measurements, outputUnit) {
+        const container = document.getElementById('liftingContent');
+        const formatValue = (inches) => outputUnit === 'metric' ? formatMetricValue(inches) : formatHeight(inches);
+        const formatWeight = (lbs) => {
+            if (outputUnit === 'metric') {
+                const kg = lbs * LBS_TO_KG;
+                return `${addCommas(Math.floor(kg * 100) / 100)} kg`;
+            } else {
+                return `${addCommas(Math.floor(lbs))} lbs`;
+            }
+        };
+        
+        const formatMetricValue = (inches) => {
+            const cm = inches * INCHES_TO_CM;
+            if (cm >= 100000) return (Math.floor(cm / 100000 * 100) / 100) + " km";
+            else if (cm >= 1000) return (Math.floor(cm / 100 * 100) / 100) + " m";
+            else return (Math.floor(cm * 10) / 10) + " cm";
+        };
+        
+        container.innerHTML = `
+            <div style="font-size: 0.8em; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 5px 8px; line-height: 1.3;">
+                <div style="text-align: right; font-weight: bold;">She can lift:</div>
+                <div>${formatWeight(measurements.overall.liftCapacityLbs)}</div>
+                
+                <div style="grid-column: 1 / -1; margin-top: 8px; font-weight: bold; color: var(--primary-color);">A 6', 180lb man would:</div>
+                
+                <div style="text-align: right; font-weight: bold; padding-left: 15px;">Look this tall:</div>
+                <div>${formatValue(measurements.reference.manHeightToHerInches)}</div>
+                
+                <div style="text-align: right; font-weight: bold; padding-left: 15px;">Weigh:</div>
+                <div>${formatWeight(measurements.reference.manWeightToHerLbs)}</div>
             </div>
         `;
     }
